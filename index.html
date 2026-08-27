@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Fitxatges</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#A87B2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fitxatges">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --paper:#EEECE3;
+    --card:#FBFAF6;
+    --ink:#232A2E;
+    --ink-soft:#5B6570;
+    --line:#D9D3C4;
+    --brass:#A87B2E;
+    --brass-dark:#8C6424;
+    --in-green:#3D7A5C;
+    --in-green-bg:#E4EFE8;
+    --out-slate:#55606B;
+    --deficit:#B0463A;
+    --deficit-bg:#F5E4E1;
+    --surplus:#3D7A5C;
+    --surplus-bg:#E4EFE8;
+    --radius:14px;
+    --mono: ui-monospace, "SF Mono", "Roboto Mono", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  body{
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    padding-top: env(safe-area-inset-top);
+    min-height:100vh;
+  }
+  #app{max-width:520px;margin:0 auto;padding:0 16px;}
+  header.top{
+    padding:18px 4px 8px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  header.top h1{font-size:17px;letter-spacing:.04em;text-transform:uppercase;margin:0;font-weight:700;color:var(--ink);}
+  header.top .clock{font-family:var(--mono);font-size:15px;color:var(--ink-soft);}
+  section.view{display:none;}
+  section.view.active{display:block;animation:fadeIn .18s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* ---- FITXAR ---- */
+  .status-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;text-align:center;margin-bottom:18px;
+  }
+  .status-card .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:6px;}
+  .status-card .big{font-family:var(--mono);font-size:34px;font-weight:600;line-height:1.1;}
+  .status-card .sub{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .punch-wrap{display:flex;justify-content:center;margin:26px 0 8px;}
+  #punchBtn{
+    width:172px;height:172px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--out-slate); color:#fff;
+    font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:.04em;text-transform:uppercase;
+    box-shadow:0 8px 0 rgba(0,0,0,.15), 0 10px 18px rgba(0,0,0,.18);
+    position:relative;transition:transform .08s ease, box-shadow .08s ease, background .2s ease;
+  }
+  #punchBtn.in{background:var(--in-green);}
+  #punchBtn:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.15), 0 4px 8px rgba(0,0,0,.18);}
+  #punchBtn .ring{position:absolute;inset:10px;border-radius:50%;border:2px dashed rgba(255,255,255,.5);pointer-events:none;}
+  #punchBtn .time{display:block;font-family:var(--mono);font-size:13px;font-weight:400;margin-top:6px;opacity:.9;}
+  @keyframes stamp{0%{transform:scale(1)}40%{transform:scale(.9) rotate(-2deg)}100%{transform:scale(1)}}
+  #punchBtn.stamped{animation:stamp .28s ease;}
+
+  .today-summary{display:flex;gap:10px;margin-bottom:18px;}
+  .today-summary .box{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center;}
+  .today-summary .box .n{font-family:var(--mono);font-size:18px;font-weight:700;}
+  .today-summary .box .l{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+  .diff-pos{color:var(--surplus);} .diff-neg{color:var(--deficit);}
+
+  h2.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:22px 0 8px 4px;}
+
+  .stub{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:10px 14px 10px 10px;margin-bottom:8px;display:flex;align-items:center;gap:10px;
+    position:relative;
+  }
+  .stub:nth-child(odd){transform:rotate(-.3deg);}
+  .stub:nth-child(even){transform:rotate(.3deg);}
+  .stub .perf{width:2px;align-self:stretch;background:repeating-linear-gradient(to bottom, var(--line) 0 5px, transparent 5px 10px);}
+  .stub .times{font-family:var(--mono);font-size:15px;font-weight:600;flex:1;}
+  .stub .times .arrow{color:var(--ink-soft);font-weight:400;margin:0 4px;}
+  .stub .dur{font-family:var(--mono);font-size:12px;color:var(--ink-soft);}
+  .stub .edit-btn{background:none;border:none;color:var(--ink-soft);font-size:16px;cursor:pointer;padding:4px 6px;}
+  .empty-note{color:var(--ink-soft);font-size:13px;padding:14px 4px;text-align:center;}
+
+  .btn{
+    display:inline-block;background:var(--brass);color:#fff;border:none;border-radius:10px;
+    padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);
+  }
+  .btn:active{background:var(--brass-dark);}
+  .btn.secondary{background:transparent;color:var(--brass-dark);border:1px solid var(--brass);}
+  .btn.danger{background:var(--deficit);}
+  .btn.small{padding:7px 12px;font-size:12.5px;}
+  .btn.block{display:block;width:100%;text-align:center;margin-top:10px;}
+  .row-btns{display:flex;gap:8px;margin-top:10px;}
+  .row-btns .btn{flex:1;}
+
+  /* ---- HISTORIAL ---- */
+  .subtabs{display:flex;gap:6px;margin:14px 0 12px;}
+  .subtabs button{
+    flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:var(--card);
+    font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+  }
+  .subtabs button.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .nav-row button{background:none;border:none;font-size:20px;color:var(--brass-dark);cursor:pointer;padding:4px 10px;}
+  .nav-row .period-label{font-weight:700;font-size:14.5px;text-transform:capitalize;}
+
+  table.hist{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px;}
+  table.hist th{background:#EFEAE0;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding:8px 6px;text-align:left;}
+  table.hist td{padding:8px 6px;border-top:1px solid var(--line);font-family:var(--mono);}
+  table.hist tr.nonwork td{color:var(--ink-soft);opacity:.55;}
+  table.hist tr.today td{background:#F3E9D6;}
+  table.hist tfoot td{border-top:2px solid var(--ink);font-weight:700;}
+
+  .day-detail{margin-top:6px;}
+
+  /* ---- CONFIG ---- */
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input[type=number], .field input[type=date]{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:var(--mono);background:var(--card);color:var(--ink);
+  }
+  .weekday-grid{display:flex;gap:6px;flex-wrap:wrap;}
+  .weekday-grid label{
+    flex:1;min-width:40px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:8px 0;
+    font-size:12px;font-weight:700;cursor:pointer;background:var(--card);color:var(--ink-soft);
+  }
+  .weekday-grid input{display:none;}
+  .weekday-grid input:checked + span{color:#fff;}
+  .weekday-grid label:has(input:checked){background:var(--ink);border-color:var(--ink);color:#fff;}
+  .holiday-list{list-style:none;padding:0;margin:8px 0 0;}
+  .holiday-list li{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-family:var(--mono);font-size:13px;}
+  .holiday-list button{background:none;border:none;color:var(--deficit);font-size:16px;cursor:pointer;}
+  .add-holiday-row{display:flex;gap:8px;}
+  .add-holiday-row input{flex:1;}
+
+  /* ---- MODAL ---- */
+  #overlay{
+    position:fixed;inset:0;background:rgba(35,42,46,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;
+  }
+  #overlay.show{display:flex;}
+  #modal{
+    background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+    animation:slideUp .18s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+  #modal h3{margin:0 0 14px;font-size:15px;text-transform:uppercase;letter-spacing:.05em;}
+  #modal .timefields{display:flex;gap:10px;}
+  #modal .timefields .field{flex:1;}
+  #modal input[type=time]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-family:var(--mono);font-size:16px;background:var(--card);}
+
+  /* ---- TABBAR ---- */
+  nav.tabbar{
+    position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);
+    display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;
+  }
+  nav.tabbar button{
+    flex:1;background:none;border:none;padding:11px 0 9px;font-family:var(--sans);font-size:11px;font-weight:600;
+    color:var(--ink-soft);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:.03em;
+  }
+  nav.tabbar button.active{color:var(--brass-dark);}
+  nav.tabbar button .ic{font-size:19px;}
+
+  .backup-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:8px;}
+  .backup-box p{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.4;}
+  #printArea{display:none;}
+  @media print{
+    #app > header.top, #app section.view, nav.tabbar, #overlay{display:none !important;}
+    #printArea{display:block !important;}
+  }
+</style>
+</head>
+<body>
+<div id="previewWarning" style="display:none;background:#B0463A;color:#fff;font-size:12.5px;padding:10px 16px;text-align:center;line-height:1.4;">
+  ⚠️ Estàs veient una previsualització. Aquí les dades <strong>no es guarden</strong> en tancar. Baixa l'arxiu i obre'l directament al navegador del mòbil.
+</div>
+<div id="app">
+  <header class="top">
+    <h1>Fitxatges</h1>
+    <div class="clock" id="liveClock">--:--:--</div>
+  </header>
+
+  <!-- FITXAR -->
+  <section class="view active" id="view-fitxar">
+    <div class="status-card">
+      <div class="label" id="statusLabel">Ara mateix estàs fora</div>
+      <div class="big" id="statusBig">—</div>
+      <div class="sub" id="statusSub"></div>
+    </div>
+
+    <div class="punch-wrap">
+      <button id="punchBtn">
+        <div class="ring"></div>
+        <span id="punchLabel">ENTRADA</span>
+        <span class="time" id="punchTime"></span>
+      </button>
+    </div>
+
+    <div class="today-summary">
+      <div class="box"><div class="n" id="sumWorked">0h 00m</div><div class="l">Treballat avui</div></div>
+      <div class="box"><div class="n" id="sumTarget">0h 00m</div><div class="l">Objectiu</div></div>
+      <div class="box"><div class="n" id="sumDiff">0h 00m</div><div class="l">Diferència</div></div>
+    </div>
+
+    <h2 class="section-title">Fitxatges d'avui</h2>
+    <div id="todayList"></div>
+    <button class="btn secondary block" id="addManualTodayBtn">+ Afegir fitxatge manual</button>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section class="view" id="view-historial">
+    <div class="subtabs">
+      <button data-mode="dia" class="active">Dia</button>
+      <button data-mode="setmana">Setmana</button>
+      <button data-mode="mes">Mes</button>
+    </div>
+    <div class="nav-row">
+      <button id="histPrev">‹</button>
+      <div class="period-label" id="histPeriodLabel"></div>
+      <button id="histNext">›</button>
+    </div>
+    <div id="histContent"></div>
+    <button class="btn secondary block" id="exportCsvBtn">Exportar CSV</button>
+    <button class="btn secondary block" id="exportPdfBtn">Exportar PDF del mes</button>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="view" id="view-config">
+    <h2 class="section-title">Objectiu diari</h2>
+    <div class="field">
+      <label>Hores objectiu / dia</label>
+      <input type="number" id="cfgTarget" min="0" step="0.25">
+    </div>
+
+    <h2 class="section-title">Dies laborables</h2>
+    <div class="weekday-grid" id="weekdayGrid">
+      <label><input type="checkbox" value="1"><span>Dl</span></label>
+      <label><input type="checkbox" value="2"><span>Dt</span></label>
+      <label><input type="checkbox" value="3"><span>Dc</span></label>
+      <label><input type="checkbox" value="4"><span>Dj</span></label>
+      <label><input type="checkbox" value="5"><span>Dv</span></label>
+      <label><input type="checkbox" value="6"><span>Ds</span></label>
+      <label><input type="checkbox" value="7"><span>Dg</span></label>
+    </div>
+
+    <h2 class="section-title">Festius personalitzats</h2>
+    <div class="add-holiday-row">
+      <input type="date" id="cfgHolidayInput">
+      <button class="btn small" id="addHolidayBtn">Afegir</button>
+    </div>
+    <ul class="holiday-list" id="holidayList"></ul>
+
+    <h2 class="section-title">Còpia de seguretat</h2>
+    <div class="backup-box">
+      <p>Totes les dades es guarden només en aquest dispositiu i navegador. Si esborres dades del navegador, es perdran. Fes una còpia periòdicament.</p>
+      <div class="row-btns">
+        <button class="btn small secondary" id="backupBtn">Descarregar còpia (JSON)</button>
+        <button class="btn small secondary" id="restoreBtn">Restaurar còpia</button>
+      </div>
+      <input type="file" id="restoreFile" accept="application/json" style="display:none">
+    </div>
+
+    <div style="text-align:center;color:var(--ink-soft);font-size:12px;margin-top:26px;padding-bottom:6px;">
+      Creat per Adrià Casals
+    </div>
+  </section>
+
+  <div id="printArea"></div>
+</div>
+
+<nav class="tabbar">
+  <button data-view="fitxar" class="active"><span class="ic">🕒</span>Fitxar</button>
+  <button data-view="historial"><span class="ic">📋</span>Historial</button>
+  <button data-view="config"><span class="ic">⚙️</span>Config</button>
+</nav>
+
+<div id="overlay">
+  <div id="modal">
+    <h3 id="modalTitle">Editar fitxatge</h3>
+    <div class="timefields">
+      <div class="field"><label>Entrada</label><input type="time" id="modalStart"></div>
+      <div class="field"><label>Sortida</label><input type="time" id="modalEnd"></div>
+    </div>
+    <div class="row-btns">
+      <button class="btn secondary" id="modalCancel">Cancel·lar</button>
+      <button class="btn" id="modalSave">Desar</button>
+    </div>
+    <button class="btn danger block" id="modalDelete" style="display:none">Eliminar fitxatge</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "fitxatgesApp_v1";
+  var DOW = ["Dg","Dl","Dt","Dc","Dj","Dv","Ds"]; // js getDay index 0..6
+  var DOW_LONG = ["diumenge","dilluns","dimarts","dimecres","dijous","divendres","dissabte"];
+  var MONTHS = ["gener","febrer","març","abril","maig","juny","juliol","agost","setembre","octubre","novembre","desembre"];
+
+  function defaultState(){
+    return { config:{ dailyTargetHours:8, workDays:[1,2,3,4,5], holidays:[] }, days:{} };
+  }
+  var state = load();
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if(!parsed.config) parsed.config = defaultState().config;
+      if(!parsed.days) parsed.days = {};
+      return parsed;
+    }catch(e){ console.error("Error carregant dades", e); return defaultState(); }
+  }
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ alert("No s'ha pogut desar. Potser el navegador té l'emmagatzematge ple o bloquejat."); }
+  }
+
+  // ---------- Date helpers ----------
+  function pad(n){ return n<10 ? "0"+n : ""+n; }
+  function dateKey(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function keyToDate(k){ var p=k.split("-").map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  function todayKey(){ return dateKey(new Date()); }
+  function isoDow(d){ var g=d.getDay(); return g===0?7:g; } // 1=Dl..7=Dg
+  function addDays(d, n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+  function fmtHM(mins){
+    var sign = mins<0 ? "-" : "";
+    mins = Math.abs(Math.round(mins));
+    var h = Math.floor(mins/60), m = mins%60;
+    return sign + h + "h " + pad(m) + "m";
+  }
+  function timeToMin(hm){ if(!hm) return null; var p=hm.split(":"); return (+p[0])*60+(+p[1]); }
+  function nowHM(){ var d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); }
+
+  // ---------- Data access ----------
+  function getPairs(key){ return state.days[key] || []; }
+  function setPairs(key, pairs){
+    if(pairs.length===0) delete state.days[key];
+    else state.days[key] = pairs;
+    save();
+  }
+  function isOpenPair(key){
+    var pairs = getPairs(key);
+    return pairs.length>0 && !pairs[pairs.length-1].end;
+  }
+  function isWorkday(key){
+    var d = keyToDate(key);
+    if(state.config.holidays.indexOf(key) !== -1) return false;
+    return state.config.workDays.indexOf(isoDow(d)) !== -1;
+  }
+  function targetForDay(key){ return isWorkday(key) ? state.config.dailyTargetHours*60 : 0; }
+  function workedMinutesForDay(key){
+    var pairs = getPairs(key);
+    var total = 0;
+    var isToday = key === todayKey();
+    pairs.forEach(function(p){
+      var s = timeToMin(p.start);
+      var e = p.end ? timeToMin(p.end) : (isToday ? timeToMin(nowHM()) : null);
+      if(s!=null && e!=null && e>=s) total += (e-s);
+    });
+    return total;
+  }
+
+  // ---------- Punch action ----------
+  function togglePunch(){
+    var key = todayKey();
+    var pairs = getPairs(key).slice();
+    if(isOpenPair(key)){
+      pairs[pairs.length-1] = Object.assign({}, pairs[pairs.length-1], { end: nowHM() });
+    } else {
+      pairs.push({ start: nowHM(), end: null });
+    }
+    setPairs(key, pairs);
+    var btn = document.getElementById("punchBtn");
+    btn.classList.add("stamped");
+    setTimeout(function(){ btn.classList.remove("stamped"); }, 300);
+    renderAll();
+  }
+
+  // ---------- Rendering: Fitxar ----------
+  function renderFitxar(){
+    var key = todayKey();
+    var open = isOpenPair(key);
+    var pairs = getPairs(key);
+    var btn = document.getElementById("punchBtn");
+    var label = document.getElementById("punchLabel");
+    var ptime = document.getElementById("punchTime");
+    var statusLabel = document.getElementById("statusLabel");
+    var statusBig = document.getElementById("statusBig");
+    var statusSub = document.getElementById("statusSub");
+
+    btn.classList.toggle("in", open);
+    label.textContent = open ? "SORTIDA" : "ENTRADA";
+
+    if(open){
+      var startMin = timeToMin(pairs[pairs.length-1].start);
+      ptime.textContent = "des de " + pairs[pairs.length-1].start;
+      statusLabel.textContent = "Estàs dins des de";
+      statusBig.textContent = pairs[pairs.length-1].start;
+      var elapsed = timeToMin(nowHM()) - startMin;
+      statusSub.textContent = "Portes " + fmtHM(elapsed) + " en aquesta sessió";
+    } else {
+      ptime.textContent = "";
+      statusLabel.textContent = pairs.length ? "Ara mateix estàs fora" : "Encara no has fitxat avui";
+      statusBig.textContent = pairs.length ? "Fora" : "—";
+      statusSub.textContent = "";
+    }
+
+    var worked = workedMinutesForDay(key);
+    var target = targetForDay(key);
+    var diff = worked - target;
+    document.getElementById("sumWorked").textContent = fmtHM(worked);
+    document.getElementById("sumTarget").textContent = fmtHM(target);
+    var diffEl = document.getElementById("sumDiff");
+    diffEl.textContent = fmtHM(diff);
+    diffEl.className = "n " + (diff>=0 ? "diff-pos":"diff-neg");
+
+    // previsió de sortida
+    if(open && target>0){
+      var remaining = target - worked;
+      if(remaining>0){
+        var exitMin = timeToMin(nowHM()) + remaining;
+        var h = Math.floor((exitMin%1440)/60), m = Math.round(exitMin%60);
+        statusSub.textContent += " · Sortida prevista a les " + pad(h)+":"+pad(m);
+      } else {
+        statusSub.textContent += " · Objectiu complert, ja pots plegar";
+      }
+    }
+
+    var listEl = document.getElementById("todayList");
+    listEl.innerHTML = "";
+    if(pairs.length===0){
+      listEl.innerHTML = '<div class="empty-note">Encara no hi ha cap fitxatge avui</div>';
+    } else {
+      pairs.forEach(function(p, idx){ listEl.appendChild(buildStub(key, p, idx)); });
+    }
+  }
+
+  function buildStub(key, pair, idx){
+    var div = document.createElement("div");
+    div.className = "stub";
+    var dur = pair.end ? fmtHM(timeToMin(pair.end)-timeToMin(pair.start)) : "en curs";
+    div.innerHTML =
+      '<div class="perf"></div>' +
+      '<div class="times">' + pair.start + '<span class="arrow">→</span>' + (pair.end || "…") + '</div>' +
+      '<div class="dur">' + dur + '</div>' +
+      '<button class="edit-btn" aria-label="Editar">✎</button>';
+    div.querySelector(".edit-btn").addEventListener("click", function(){ openModal(key, idx); });
+    return div;
+  }
+
+  // ---------- Modal (add/edit) ----------
+  var modalCtx = null;
+  function openModal(key, idx){
+    modalCtx = { key:key, idx: (idx===undefined ? null : idx) };
+    var pair = idx!=null ? getPairs(key)[idx] : { start: nowHM(), end:null };
+    document.getElementById("modalTitle").textContent = idx!=null ? "Editar fitxatge" : "Afegir fitxatge";
+    document.getElementById("modalStart").value = pair.start || "";
+    document.getElementById("modalEnd").value = pair.end || "";
+    document.getElementById("modalDelete").style.display = idx!=null ? "block":"none";
+    document.getElementById("overlay").classList.add("show");
+  }
+  function closeModal(){ document.getElementById("overlay").classList.remove("show"); modalCtx=null; }
+
+  document.getElementById("modalCancel").addEventListener("click", closeModal);
+  document.getElementById("overlay").addEventListener("click", function(e){ if(e.target.id==="overlay") closeModal(); });
+  document.getElementById("modalSave").addEventListener("click", function(){
+    if(!modalCtx) return;
+    var s = document.getElementById("modalStart").value;
+    var e = document.getElementById("modalEnd").value;
+    if(!s){ alert("Cal indicar almenys l'hora d'entrada."); return; }
+    if(e && timeToMin(e) < timeToMin(s)){ alert("L'hora de sortida no pot ser abans de l'entrada."); return; }
+    var pairs = getPairs(modalCtx.key).slice();
+    var newPair = { start:s, end: e || null };
+    if(modalCtx.idx!=null) pairs[modalCtx.idx] = newPair; else pairs.push(newPair);
+    pairs.sort(function(a,b){ return timeToMin(a.start)-timeToMin(b.start); });
+    setPairs(modalCtx.key, pairs);
+    closeModal();
+    renderAll();
+  });
+  document.getElementById("modalDelete").addEventListener("click", function(){
+    if(!modalCtx || modalCtx.idx==null) return;
+    var pairs = getPairs(modalCtx.key).slice();
+    pairs.splice(modalCtx.idx,1);
+    setPairs(modalCtx.key, pairs);
+    closeModal();
+    renderAll();
+  });
+  document.getElementById("addManualTodayBtn").addEventListener("click", function(){ openModal(todayKey()); });
+
+  // ---------- Punch button ----------
+  document.getElementById("punchBtn").addEventListener("click", togglePunch);
+
+  // ---------- Tabs ----------
+  var views = ["fitxar","historial","config"];
+  document.querySelectorAll("nav.tabbar button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var v = btn.getAttribute("data-view");
+      views.forEach(function(vv){
+        document.getElementById("view-"+vv).classList.toggle("active", vv===v);
+      });
+      document.querySelectorAll("nav.tabbar button").forEach(function(b){ b.classList.toggle("active", b===btn); });
+      if(v==="historial") renderHistorial();
+      if(v==="config") renderConfig();
+    });
+  });
+
+  // ---------- Historial ----------
+  var histMode = "dia";
+  var histRefDate = new Date();
+  document.querySelectorAll(".subtabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      histMode = btn.getAttribute("data-mode");
+      document.querySelectorAll(".subtabs button").forEach(function(b){ b.classList.toggle("active", b===btn); });
+      renderHistorial();
+    });
+  });
+  document.getElementById("histPrev").addEventListener("click", function(){ shiftHist(-1); });
+  document.getElementById("histNext").addEventListener("click", function(){ shiftHist(1); });
+  function shiftHist(dir){
+    if(histMode==="dia") histRefDate = addDays(histRefDate, dir);
+    else if(histMode==="setmana") histRefDate = addDays(histRefDate, dir*7);
+    else histRefDate = new Date(histRefDate.getFullYear(), histRefDate.getMonth()+dir, 1);
+    renderHistorial();
+  }
+
+  function startOfWeek(d){ var dow=isoDow(d); return addDays(d, -(dow-1)); }
+
+  function renderHistorial(){
+    var label = document.getElementById("histPeriodLabel");
+    var content = document.getElementById("histContent");
+    content.innerHTML = "";
+
+    if(histMode==="dia"){
+      var key = dateKey(histRefDate);
+      label.textContent = histRefDate.getDate()+" "+MONTHS[histRefDate.getMonth()]+" "+histRefDate.getFullYear();
+      var pairs = getPairs(key);
+      var wrap = document.createElement("div");
+      wrap.className = "day-detail";
+      if(pairs.length===0){
+        wrap.innerHTML = '<div class="empty-note">Sense fitxatges aquest dia</div>';
+      } else {
+        pairs.forEach(function(p, idx){ wrap.appendChild(buildStub(key, p, idx)); });
+      }
+      var worked = workedMinutesForDay(key), target = targetForDay(key);
+      var sumDiv = document.createElement("div");
+      sumDiv.className = "today-summary";
+      sumDiv.innerHTML =
+        '<div class="box"><div class="n">'+fmtHM(worked)+'</div><div class="l">Treballat</div></div>'+
+        '<div class="box"><div class="n">'+fmtHM(target)+'</div><div class="l">Objectiu</div></div>'+
+        '<div class="box"><div class="n '+(worked-target>=0?"diff-pos":"diff-neg")+'">'+fmtHM(worked-target)+'</div><div class="l">Diferència</div></div>';
+      content.appendChild(sumDiv);
+      content.appendChild(wrap);
+      var addBtn = document.createElement("button");
+      addBtn.className = "btn secondary block";
+      addBtn.textContent = "+ Afegir fitxatge manual";
+      addBtn.addEventListener("click", function(){ openModal(key); });
+      content.appendChild(addBtn);
+
+    } else if(histMode==="setmana"){
+      var start = startOfWeek(histRefDate);
+      var end = addDays(start,6);
+      label.textContent = start.getDate()+" "+MONTHS[start.getMonth()]+" – "+end.getDate()+" "+MONTHS[end.getMonth()];
+      var table = document.createElement("table");
+      table.className = "hist";
+      var totalW=0, totalT=0;
+      var rows = "";
+      for(var i=0;i<7;i++){
+        var d = addDays(start,i);
+        var k = dateKey(d);
+        var w = workedMinutesForDay(k), t = targetForDay(k);
+        totalW+=w; totalT+=t;
+        var cls = (k===todayKey() ? "today " : "") + (t===0 ? "nonwork" : "");
+        rows += '<tr class="'+cls+'"><td>'+DOW[d.getDay()]+' '+d.getDate()+'</td><td>'+fmtHM(w)+'</td><td>'+fmtHM(t)+'</td><td class="'+(w-t>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w-t)+'</td></tr>';
+      }
+      table.innerHTML =
+        '<thead><tr><th>Dia</th><th>Treb.</th><th>Obj.</th><th>Dif.</th></tr></thead>'+
+        '<tbody>'+rows+'</tbody>'+
+        '<tfoot><tr><td>Total</td><td>'+fmtHM(totalW)+'</td><td>'+fmtHM(totalT)+'</td><td class="'+(totalW-totalT>=0?"diff-pos":"diff-neg")+'">'+fmtHM(totalW-totalT)+'</td></tr></tfoot>';
+      content.appendChild(table);
+
+    } else { // mes
+      var y = histRefDate.getFullYear(), m = histRefDate.getMonth();
+      label.textContent = MONTHS[m] + " " + y;
+      var daysInMonth = new Date(y, m+1, 0).getDate();
+      var table2 = document.createElement("table");
+      table2.className = "hist";
+      var totalW2=0, totalT2=0, rows2="";
+      for(var dnum=1; dnum<=daysInMonth; dnum++){
+        var d2 = new Date(y,m,dnum);
+        var k2 = dateKey(d2);
+        var w2 = workedMinutesForDay(k2), t2 = targetForDay(k2);
+        totalW2+=w2; totalT2+=t2;
+        var cls2 = (k2===todayKey() ? "today " : "") + (t2===0 ? "nonwork" : "");
+        rows2 += '<tr class="'+cls2+'"><td>'+dnum+' '+DOW[d2.getDay()]+'</td><td>'+fmtHM(w2)+'</td><td>'+fmtHM(t2)+'</td><td class="'+(w2-t2>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w2-t2)+'</td></tr>';
+      }
+      table2.innerHTML =
+        '<thead><tr><th>Dia</th><th>Treb.</th><th>Obj.</th><th>Dif.</th></tr></thead>'+
+        '<tbody>'+rows2+'</tbody>'+
+        '<tfoot><tr><td>Acumulat</td><td>'+fmtHM(totalW2)+'</td><td>'+fmtHM(totalT2)+'</td><td class="'+(totalW2-totalT2>=0?"diff-pos":"diff-neg")+'">'+fmtHM(totalW2-totalT2)+'</td></tr></tfoot>';
+      content.appendChild(table2);
+    }
+  }
+
+  // ---------- Export CSV ----------
+  document.getElementById("exportCsvBtn").addEventListener("click", function(){
+    var rows = [["Data","Entrada","Sortida","Hores"]];
+    Object.keys(state.days).sort().forEach(function(k){
+      getPairs(k).forEach(function(p){
+        var hours = p.end ? ((timeToMin(p.end)-timeToMin(p.start))/60).toFixed(2) : "";
+        rows.push([k, p.start, p.end||"", hours]);
+      });
+    });
+    var csv = rows.map(function(r){ return r.join(";"); }).join("\n");
+    var blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "fitxatges.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
+  // ---------- Export PDF (via print) ----------
+  document.getElementById("exportPdfBtn").addEventListener("click", function(){
+    var y = histRefDate.getFullYear(), m = histRefDate.getMonth();
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var totalW=0, totalT=0, rows="";
+    for(var dnum=1; dnum<=daysInMonth; dnum++){
+      var d = new Date(y,m,dnum);
+      var k = dateKey(d);
+      var w = workedMinutesForDay(k), t = targetForDay(k);
+      totalW+=w; totalT+=t;
+      rows += "<tr><td>"+dnum+" "+DOW[d.getDay()]+"</td><td>"+fmtHM(w)+"</td><td>"+fmtHM(t)+"</td><td>"+fmtHM(w-t)+"</td></tr>";
+    }
+    document.getElementById("printArea").innerHTML =
+      "<h1 style='font-family:sans-serif'>Fitxatges — "+MONTHS[m]+" "+y+"</h1>"+
+      "<table style='width:100%;border-collapse:collapse;font-family:monospace;font-size:13px'>"+
+      "<thead><tr><th style='text-align:left;border-bottom:1px solid #000'>Dia</th><th style='text-align:left;border-bottom:1px solid #000'>Treballat</th><th style='text-align:left;border-bottom:1px solid #000'>Objectiu</th><th style='text-align:left;border-bottom:1px solid #000'>Diferència</th></tr></thead>"+
+      "<tbody>"+rows+"</tbody>"+
+      "<tfoot><tr style='font-weight:bold;border-top:2px solid #000'><td>Acumulat</td><td>"+fmtHM(totalW)+"</td><td>"+fmtHM(totalT)+"</td><td>"+fmtHM(totalW-totalT)+"</td></tr></tfoot>"+
+      "</table>"+
+      "<p style='font-family:sans-serif;font-size:11px;color:#666;margin-top:24px'>Creat per Adrià Casals</p>";
+    window.print();
+  });
+
+  // ---------- Config ----------
+  function renderConfig(){
+    document.getElementById("cfgTarget").value = state.config.dailyTargetHours;
+    document.querySelectorAll("#weekdayGrid input").forEach(function(cb){
+      cb.checked = state.config.workDays.indexOf(+cb.value) !== -1;
+    });
+    var list = document.getElementById("holidayList");
+    list.innerHTML = "";
+    state.config.holidays.slice().sort().forEach(function(hk){
+      var li = document.createElement("li");
+      li.innerHTML = "<span>"+hk+"</span><button aria-label='Eliminar'>✕</button>";
+      li.querySelector("button").addEventListener("click", function(){
+        state.config.holidays = state.config.holidays.filter(function(x){ return x!==hk; });
+        save(); renderConfig();
+      });
+      list.appendChild(li);
+    });
+  }
+  document.getElementById("cfgTarget").addEventListener("change", function(e){
+    var v = parseFloat(e.target.value);
+    if(isNaN(v) || v<0){ e.target.value = state.config.dailyTargetHours; return; }
+    state.config.dailyTargetHours = v; save(); renderAll();
+  });
+  document.querySelectorAll("#weekdayGrid input").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var vals = [];
+      document.querySelectorAll("#weekdayGrid input").forEach(function(c){ if(c.checked) vals.push(+c.value); });
+      state.config.workDays = vals; save(); renderAll();
+    });
+  });
+  document.getElementById("addHolidayBtn").addEventListener("click", function(){
+    var v = document.getElementById("cfgHolidayInput").value;
+    if(!v) return;
+    if(state.config.holidays.indexOf(v)===-1) state.config.holidays.push(v);
+    save(); document.getElementById("cfgHolidayInput").value=""; renderConfig(); renderAll();
+  });
+
+  // ---------- Backup / restore ----------
+  document.getElementById("backupBtn").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "fitxatges_backup_"+todayKey()+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+  document.getElementById("restoreBtn").addEventListener("click", function(){
+    document.getElementById("restoreFile").click();
+  });
+  document.getElementById("restoreFile").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        if(!data.config || !data.days) throw new Error("format invàlid");
+        if(confirm("Això substituirà totes les dades actuals per les del fitxer. Vols continuar?")){
+          state = data; save(); renderAll(); renderConfig();
+          alert("Còpia restaurada correctament.");
+        }
+      }catch(err){ alert("El fitxer no és una còpia de seguretat vàlida."); }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // ---------- Live clock ----------
+  function tickClock(){
+    var d = new Date();
+    document.getElementById("liveClock").textContent = pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  }
+  setInterval(function(){ tickClock(); renderFitxar(); }, 1000);
+
+  function renderAll(){ renderFitxar(); }
+
+  // avisar si s'està executant dins d'una previsualització (iframe), on les dades no persisteixen
+  try{
+    if(window.self !== window.top){
+      document.getElementById("previewWarning").style.display = "block";
+    }
+  }catch(e){
+    // si l'accés a window.top falla per seguretat, també és senyal d'estar dins d'un iframe
+    document.getElementById("previewWarning").style.display = "block";
+  }
+
+  // registrar el service worker (només funciona quan es serveix per http/https, no en fitxer local)
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(e){ console.warn("SW no registrat:", e); });
+    });
+  }
+
+  // init
+  tickClock();
+  renderAll();
+  renderConfig();
+})();
+</script>
+</body>
+</html>
