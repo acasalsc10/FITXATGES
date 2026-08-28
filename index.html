@@ -58,6 +58,7 @@
   .status-card .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:6px;}
   .status-card .big{font-family:var(--mono);font-size:34px;font-weight:600;line-height:1.1;}
   .status-card .sub{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .status-card .exit-pred{font-family:var(--mono);font-size:21px;font-weight:700;color:var(--brass-dark);margin-top:8px;}
   .punch-wrap{display:flex;justify-content:center;margin:26px 0 8px;}
   #punchBtn{
     width:172px;height:172px;border-radius:50%;border:none;cursor:pointer;
@@ -133,19 +134,29 @@
   .field input[type=number], .field input[type=date]{
     width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:var(--mono);background:var(--card);color:var(--ink);
   }
-  .weekday-grid{display:flex;gap:6px;flex-wrap:wrap;}
-  .weekday-grid label{
-    flex:1;min-width:40px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:8px 0;
-    font-size:12px;font-weight:700;cursor:pointer;background:var(--card);color:var(--ink-soft);
-  }
-  .weekday-grid input{display:none;}
-  .weekday-grid input:checked + span{color:#fff;}
-  .weekday-grid label:has(input:checked){background:var(--ink);border-color:var(--ink);color:#fff;}
+  .daytarget-grid{display:flex;flex-direction:column;gap:6px;}
+  .daytarget-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;transition:opacity .15s;}
+  .daytarget-row.off{opacity:.45;}
+  .daytarget-row .wd-toggle{display:flex;align-items:center;gap:8px;width:76px;flex-shrink:0;}
+  .daytarget-row .wd-toggle input{width:18px;height:18px;accent-color:var(--ink);}
+  .daytarget-row .wd-toggle span{font-size:13px;font-weight:700;color:var(--ink);}
+  .daytarget-row input[type=number]{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:14px;background:#fff;text-align:right;}
+  .daytarget-row .unit{font-size:12px;color:var(--ink-soft);width:16px;}
+  .schedule-note{font-size:12px;color:var(--ink-soft);margin:8px 4px 0;line-height:1.4;}
   .holiday-list{list-style:none;padding:0;margin:8px 0 0;}
   .holiday-list li{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-family:var(--mono);font-size:13px;}
   .holiday-list button{background:none;border:none;color:var(--deficit);font-size:16px;cursor:pointer;}
   .add-holiday-row{display:flex;gap:8px;}
   .add-holiday-row input{flex:1;}
+  .vacation-summary{display:flex;gap:10px;margin-top:10px;}
+  .vacation-summary .box{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center;}
+  .vacation-summary .box .n{font-family:var(--mono);font-size:20px;font-weight:700;}
+  .vacation-summary .box .l{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+
+  .day-target-line{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;}
+  .day-target-line .edit-target-btn{background:none;border:none;color:var(--brass-dark);font-size:14px;cursor:pointer;padding:2px 6px;}
+  .override-tag{display:inline-block;font-size:10.5px;background:var(--brass);color:#fff;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+
 
   /* ---- MODAL ---- */
   #overlay{
@@ -161,6 +172,10 @@
   #modal .timefields{display:flex;gap:10px;}
   #modal .timefields .field{flex:1;}
   #modal input[type=time]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-family:var(--mono);font-size:16px;background:var(--card);}
+  #overlayTarget{position:fixed;inset:0;background:rgba(35,42,46,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  #overlayTarget.show{display:flex;}
+  #modalTarget{background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));animation:slideUp .18s ease;}
+  #modalTarget h3{margin:0 0 14px;font-size:15px;text-transform:uppercase;letter-spacing:.05em;}
 
   /* ---- TABBAR ---- */
   nav.tabbar{
@@ -199,6 +214,7 @@
       <div class="label" id="statusLabel">Ara mateix estàs fora</div>
       <div class="big" id="statusBig">—</div>
       <div class="sub" id="statusSub"></div>
+      <div class="exit-pred" id="exitPred"></div>
     </div>
 
     <div class="punch-wrap">
@@ -239,22 +255,11 @@
 
   <!-- CONFIG -->
   <section class="view" id="view-config">
-    <h2 class="section-title">Objectiu diari</h2>
-    <div class="field">
-      <label>Hores objectiu / dia</label>
-      <input type="number" id="cfgTarget" min="0" step="0.25">
+    <h2 class="section-title">Dies laborables i hores objectiu</h2>
+    <div class="daytarget-grid" id="dayTargetGrid">
+      <!-- generat per JS -->
     </div>
-
-    <h2 class="section-title">Dies laborables</h2>
-    <div class="weekday-grid" id="weekdayGrid">
-      <label><input type="checkbox" value="1"><span>Dl</span></label>
-      <label><input type="checkbox" value="2"><span>Dt</span></label>
-      <label><input type="checkbox" value="3"><span>Dc</span></label>
-      <label><input type="checkbox" value="4"><span>Dj</span></label>
-      <label><input type="checkbox" value="5"><span>Dv</span></label>
-      <label><input type="checkbox" value="6"><span>Ds</span></label>
-      <label><input type="checkbox" value="7"><span>Dg</span></label>
-    </div>
+    <p class="schedule-note">Els canvis d'hores objectiu només afecten a partir d'avui: l'historial de dies anteriors es manté tal com estava.</p>
 
     <h2 class="section-title">Festius personalitzats</h2>
     <div class="add-holiday-row">
@@ -262,6 +267,17 @@
       <button class="btn small" id="addHolidayBtn">Afegir</button>
     </div>
     <ul class="holiday-list" id="holidayList"></ul>
+
+    <h2 class="section-title">Vacances</h2>
+    <div class="field">
+      <label>Dies de vacances totals concedits per l'empresa</label>
+      <input type="number" id="cfgVacationTotal" min="0" step="0.5">
+    </div>
+    <div class="vacation-summary">
+      <div class="box"><div class="n" id="vacUsed">0</div><div class="l">Assignades</div></div>
+      <div class="box"><div class="n" id="vacRemaining">0</div><div class="l">Restants</div></div>
+    </div>
+    <p class="schedule-note">Les vacances assignades es calculen a partir dels festius personalitzats afegits a dalt.</p>
 
     <h2 class="section-title">Còpia de seguretat</h2>
     <div class="backup-box">
@@ -302,6 +318,21 @@
   </div>
 </div>
 
+<div id="overlayTarget">
+  <div id="modalTarget">
+    <h3>Objectiu d'aquest dia</h3>
+    <div class="field">
+      <label>Hores objectiu</label>
+      <input type="number" id="targetModalInput" min="0" step="0.25">
+    </div>
+    <div class="row-btns">
+      <button class="btn secondary" id="targetModalCancel">Cancel·lar</button>
+      <button class="btn" id="targetModalSave">Desar</button>
+    </div>
+    <button class="btn danger block" id="targetModalReset">Treure personalització (usar l'objectiu habitual)</button>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -311,7 +342,17 @@
   var MONTHS = ["gener","febrer","març","abril","maig","juny","juliol","agost","setembre","octubre","novembre","desembre"];
 
   function defaultState(){
-    return { config:{ dailyTargetHours:8, workDays:[1,2,3,4,5], holidays:[] }, days:{} };
+    return {
+      config:{
+        workDays:[1,2,3,4,5],
+        holidays:[],
+        vacationTotal:0,
+        // historial d'objectius: cada entrada s'aplica des de "from" (inclòs) fins la seguent entrada
+        targetSchedule:[ { from:"1970-01-01", targets:{1:8,2:8,3:8,4:8,5:8,6:0,7:0} } ]
+      },
+      dayOverrides:{}, // objectiu personalitzat per a un dia concret: { 'YYYY-MM-DD': hores }
+      days:{}
+    };
   }
   var state = load();
 
@@ -322,6 +363,17 @@
       var parsed = JSON.parse(raw);
       if(!parsed.config) parsed.config = defaultState().config;
       if(!parsed.days) parsed.days = {};
+      if(!parsed.dayOverrides) parsed.dayOverrides = {};
+      if(typeof parsed.config.vacationTotal !== "number") parsed.config.vacationTotal = 0;
+      // migració del format antic (una sola hora objectiu per a tots els dies laborables)
+      if(!parsed.config.targetSchedule){
+        var oldTarget = typeof parsed.config.dailyTargetHours === "number" ? parsed.config.dailyTargetHours : 8;
+        var oldWorkDays = parsed.config.workDays || [1,2,3,4,5];
+        var t = {1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+        oldWorkDays.forEach(function(d){ t[d] = oldTarget; });
+        parsed.config.targetSchedule = [ { from:"1970-01-01", targets:t } ];
+        delete parsed.config.dailyTargetHours;
+      }
       return parsed;
     }catch(e){ console.error("Error carregant dades", e); return defaultState(); }
   }
@@ -362,7 +414,39 @@
     if(state.config.holidays.indexOf(key) !== -1) return false;
     return state.config.workDays.indexOf(isoDow(d)) !== -1;
   }
-  function targetForDay(key){ return isWorkday(key) ? state.config.dailyTargetHours*60 : 0; }
+  // Retorna l'entrada de l'horari (targetSchedule) vigent per a una data concreta
+  function scheduleEntryFor(key){
+    var sched = state.config.targetSchedule.slice().sort(function(a,b){ return a.from < b.from ? -1 : 1; });
+    var current = sched[0];
+    sched.forEach(function(entry){ if(entry.from <= key) current = entry; });
+    return current;
+  }
+  // Horari actualment actiu (el que s'edita a Configuració)
+  function currentSchedule(){ return scheduleEntryFor(todayKey()); }
+  function targetForDay(key){
+    if(Object.prototype.hasOwnProperty.call(state.dayOverrides, key)){
+      return state.dayOverrides[key]*60;
+    }
+    if(!isWorkday(key)) return 0;
+    var d = keyToDate(key);
+    var entry = scheduleEntryFor(key);
+    var v = entry.targets[isoDow(d)];
+    return (typeof v === "number" ? v : 0) * 60;
+  }
+  // Desa un nou valor d'hores per a un dia de la setmana, efectiu des d'avui (manté l'historial intacte)
+  function setWeekdayTargetFromToday(dow, hours){
+    var today = todayKey();
+    var sched = state.config.targetSchedule;
+    var todayEntry = null;
+    sched.forEach(function(e){ if(e.from === today) todayEntry = e; });
+    if(!todayEntry){
+      var base = currentSchedule();
+      todayEntry = { from: today, targets: Object.assign({}, base.targets) };
+      sched.push(todayEntry);
+    }
+    todayEntry.targets[dow] = hours;
+    save();
+  }
   function workedMinutesForDay(key){
     var pairs = getPairs(key);
     var total = 0;
@@ -429,16 +513,19 @@
     diffEl.textContent = fmtHM(diff);
     diffEl.className = "n " + (diff>=0 ? "diff-pos":"diff-neg");
 
-    // previsió de sortida
+    // previsió de sortida (en lletra gran perquè es vegi bé)
+    var exitPred = document.getElementById("exitPred");
     if(open && target>0){
       var remaining = target - worked;
       if(remaining>0){
         var exitMin = timeToMin(nowHM()) + remaining;
         var h = Math.floor((exitMin%1440)/60), m = Math.round(exitMin%60);
-        statusSub.textContent += " · Sortida prevista a les " + pad(h)+":"+pad(m);
+        exitPred.textContent = "Sortida prevista: " + pad(h)+":"+pad(m);
       } else {
-        statusSub.textContent += " · Objectiu complert, ja pots plegar";
+        exitPred.textContent = "Objectiu complert, ja pots plegar";
       }
+    } else {
+      exitPred.textContent = "";
     }
 
     var listEl = document.getElementById("todayList");
@@ -557,13 +644,19 @@
         pairs.forEach(function(p, idx){ wrap.appendChild(buildStub(key, p, idx)); });
       }
       var worked = workedMinutesForDay(key), target = targetForDay(key);
+      var hasOverride = Object.prototype.hasOwnProperty.call(state.dayOverrides, key);
       var sumDiv = document.createElement("div");
       sumDiv.className = "today-summary";
       sumDiv.innerHTML =
         '<div class="box"><div class="n">'+fmtHM(worked)+'</div><div class="l">Treballat</div></div>'+
-        '<div class="box"><div class="n">'+fmtHM(target)+'</div><div class="l">Objectiu</div></div>'+
+        '<div class="box"><div class="n">'+fmtHM(target)+'</div><div class="l">Objectiu'+(hasOverride?' <span class="override-tag">personalitzat</span>':'')+'</div></div>'+
         '<div class="box"><div class="n '+(worked-target>=0?"diff-pos":"diff-neg")+'">'+fmtHM(worked-target)+'</div><div class="l">Diferència</div></div>';
       content.appendChild(sumDiv);
+      var editTargetLine = document.createElement("div");
+      editTargetLine.className = "day-target-line";
+      editTargetLine.innerHTML = '<button class="edit-target-btn">✎ Editar objectiu d\'aquest dia</button>';
+      editTargetLine.querySelector("button").addEventListener("click", function(){ openTargetModal(key); });
+      content.appendChild(editTargetLine);
       content.appendChild(wrap);
       var addBtn = document.createElement("button");
       addBtn.className = "btn secondary block";
@@ -657,11 +750,38 @@
   });
 
   // ---------- Config ----------
+  var WEEKDAY_LABELS = {1:"Dilluns",2:"Dimarts",3:"Dimecres",4:"Dijous",5:"Divendres",6:"Dissabte",7:"Diumenge"};
+
   function renderConfig(){
-    document.getElementById("cfgTarget").value = state.config.dailyTargetHours;
-    document.querySelectorAll("#weekdayGrid input").forEach(function(cb){
-      cb.checked = state.config.workDays.indexOf(+cb.value) !== -1;
+    var sched = currentSchedule();
+    var grid = document.getElementById("dayTargetGrid");
+    grid.innerHTML = "";
+    [1,2,3,4,5,6,7].forEach(function(dow){
+      var isWork = state.config.workDays.indexOf(dow) !== -1;
+      var row = document.createElement("div");
+      row.className = "daytarget-row" + (isWork ? "" : " off");
+      row.innerHTML =
+        '<label class="wd-toggle"><input type="checkbox" value="'+dow+'" '+(isWork?"checked":"")+'><span>'+DOW[dow%7]+'</span></label>'+
+        '<input type="number" min="0" step="0.25" value="'+(sched.targets[dow]||0)+'" '+(isWork?"":"disabled")+'>'+
+        '<span class="unit">h</span>';
+      var cb = row.querySelector("input[type=checkbox]");
+      var num = row.querySelector("input[type=number]");
+      cb.addEventListener("change", function(){
+        var vals = state.config.workDays.slice();
+        if(cb.checked){ if(vals.indexOf(dow)===-1) vals.push(dow); }
+        else { vals = vals.filter(function(x){ return x!==dow; }); }
+        state.config.workDays = vals;
+        save(); renderConfig(); renderAll();
+      });
+      num.addEventListener("change", function(){
+        var v = parseFloat(num.value);
+        if(isNaN(v) || v<0){ v = 0; }
+        setWeekdayTargetFromToday(dow, v);
+        renderAll();
+      });
+      grid.appendChild(row);
     });
+
     var list = document.getElementById("holidayList");
     list.innerHTML = "";
     state.config.holidays.slice().sort().forEach(function(hk){
@@ -669,28 +789,52 @@
       li.innerHTML = "<span>"+hk+"</span><button aria-label='Eliminar'>✕</button>";
       li.querySelector("button").addEventListener("click", function(){
         state.config.holidays = state.config.holidays.filter(function(x){ return x!==hk; });
-        save(); renderConfig();
+        save(); renderConfig(); renderAll();
       });
       list.appendChild(li);
     });
+
+    document.getElementById("cfgVacationTotal").value = state.config.vacationTotal;
+    var used = state.config.holidays.length;
+    document.getElementById("vacUsed").textContent = used;
+    document.getElementById("vacRemaining").textContent = (state.config.vacationTotal - used);
   }
-  document.getElementById("cfgTarget").addEventListener("change", function(e){
-    var v = parseFloat(e.target.value);
-    if(isNaN(v) || v<0){ e.target.value = state.config.dailyTargetHours; return; }
-    state.config.dailyTargetHours = v; save(); renderAll();
-  });
-  document.querySelectorAll("#weekdayGrid input").forEach(function(cb){
-    cb.addEventListener("change", function(){
-      var vals = [];
-      document.querySelectorAll("#weekdayGrid input").forEach(function(c){ if(c.checked) vals.push(+c.value); });
-      state.config.workDays = vals; save(); renderAll();
-    });
-  });
   document.getElementById("addHolidayBtn").addEventListener("click", function(){
     var v = document.getElementById("cfgHolidayInput").value;
     if(!v) return;
     if(state.config.holidays.indexOf(v)===-1) state.config.holidays.push(v);
     save(); document.getElementById("cfgHolidayInput").value=""; renderConfig(); renderAll();
+  });
+  document.getElementById("cfgVacationTotal").addEventListener("change", function(e){
+    var v = parseFloat(e.target.value);
+    if(isNaN(v) || v<0) v = 0;
+    state.config.vacationTotal = v; save(); renderConfig();
+  });
+
+  // ---------- Modal: objectiu d'un dia concret (des de l'Historial) ----------
+  var targetModalKey = null;
+  function openTargetModal(key){
+    targetModalKey = key;
+    var hasOverride = Object.prototype.hasOwnProperty.call(state.dayOverrides, key);
+    var currentVal = hasOverride ? state.dayOverrides[key] : (targetForDay(key)/60);
+    document.getElementById("targetModalInput").value = currentVal;
+    document.getElementById("targetModalReset").style.display = hasOverride ? "block" : "none";
+    document.getElementById("overlayTarget").classList.add("show");
+  }
+  function closeTargetModal(){ document.getElementById("overlayTarget").classList.remove("show"); targetModalKey=null; }
+  document.getElementById("targetModalCancel").addEventListener("click", closeTargetModal);
+  document.getElementById("overlayTarget").addEventListener("click", function(e){ if(e.target.id==="overlayTarget") closeTargetModal(); });
+  document.getElementById("targetModalSave").addEventListener("click", function(){
+    if(!targetModalKey) return;
+    var v = parseFloat(document.getElementById("targetModalInput").value);
+    if(isNaN(v) || v<0){ alert("Introdueix un número d'hores vàlid."); return; }
+    state.dayOverrides[targetModalKey] = v;
+    save(); closeTargetModal(); renderAll(); renderHistorial();
+  });
+  document.getElementById("targetModalReset").addEventListener("click", function(){
+    if(!targetModalKey) return;
+    delete state.dayOverrides[targetModalKey];
+    save(); closeTargetModal(); renderAll(); renderHistorial();
   });
 
   // ---------- Backup / restore ----------
