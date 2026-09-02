@@ -125,6 +125,15 @@
   table.hist tr.nonwork td{color:var(--ink-soft);opacity:.55;}
   table.hist tr.today td{background:#F3E9D6;}
   table.hist tfoot td{border-top:2px solid var(--ink);font-weight:700;}
+  table.hist tr.vacation-row td{background:rgba(0,128,128,.12);}
+  table.hist tr.vacation-row td:first-child{border-left:4px solid rgb(0,128,128);color:rgb(0,128,128);font-weight:700;}
+  table.hist tr.vacation-row .vac-tag{display:block;font-size:9.5px;font-weight:700;color:rgb(0,128,128);}
+  table.hist tr.holiday-row td{background:rgba(198,40,40,.10);}
+  table.hist tr.holiday-row td:first-child{border-left:4px solid rgb(198,40,40);color:rgb(198,40,40);font-weight:700;}
+  table.hist tr.holiday-row .vac-tag{display:block;font-size:9.5px;font-weight:700;color:rgb(198,40,40);}
+
+  .vacation-banner{background:rgba(0,128,128,.12);border:1px solid rgb(0,128,128);border-left:4px solid rgb(0,128,128);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:rgb(0,128,128);font-weight:700;font-size:13.5px;}
+  .holiday-banner{background:rgba(198,40,40,.10);border:1px solid rgb(198,40,40);border-left:4px solid rgb(198,40,40);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:rgb(198,40,40);font-weight:700;font-size:13.5px;}
 
   .day-detail{margin-top:6px;}
 
@@ -156,6 +165,38 @@
   .day-target-line{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;}
   .day-target-line .edit-target-btn{background:none;border:none;color:var(--brass-dark);font-size:14px;cursor:pointer;padding:2px 6px;}
   .override-tag{display:inline-block;font-size:10.5px;background:var(--brass);color:#fff;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+
+  .vac-type-row{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px;}
+  .vac-type-row input[type=text]{flex:2;min-width:0;padding:8px 8px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;}
+  .vac-type-row select{flex:1;min-width:64px;padding:8px 4px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;}
+  .vac-type-row input[type=number]{width:64px;padding:8px 6px;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:13px;background:#fff;text-align:right;}
+  .vac-type-row .del-type-btn{background:none;border:none;color:var(--deficit);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+
+  .vac-req-card{background:var(--card);border:1px solid var(--line);border-left:4px solid rgb(0,128,128);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .vac-req-card .vr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .vac-req-card .vr-type{font-weight:700;font-size:14px;}
+  .vac-req-card .vr-dates{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:2px;}
+  .vac-req-card .vr-motiu{font-size:12.5px;color:var(--ink-soft);margin-top:4px;font-style:italic;}
+  .vac-req-card .vr-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:20px;background:#EFEAE0;color:var(--ink-soft);white-space:nowrap;}
+  .vac-req-card .del-req-btn{background:none;border:1px solid var(--line);color:var(--ink-soft);font-size:11.5px;cursor:pointer;padding:5px 10px;border-radius:8px;}
+  .vac-req-card .del-req-btn:active{background:var(--deficit-bg);color:var(--deficit);border-color:var(--deficit);}
+  .vac-req-card .vac-req-footer{display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);}
+
+  .vr-status.status-aprovat{background:var(--surplus-bg);color:var(--surplus);}
+  .vr-status.status-parcial{background:#F3E9D6;color:var(--brass-dark);}
+  .vac-req-card .toggle-days-btn{background:none;border:none;color:var(--brass-dark);font-size:12.5px;font-weight:600;cursor:pointer;padding:6px 0 0;}
+  .vac-req-card .days-checklist{margin-top:8px;border-top:1px solid var(--line);padding-top:8px;}
+  .vac-req-card .days-checklist .day-check-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-family:var(--mono);font-size:13px;}
+  .vac-req-card .days-checklist .day-check-row input{width:17px;height:17px;accent-color:rgb(0,128,128);}
+  .vac-req-card .days-quick-actions{display:flex;gap:8px;margin-top:6px;}
+  .vac-req-card .days-quick-actions button{flex:1;font-size:11.5px;padding:6px 0;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;}
+  .vac-req-card .hours-approve-btn{margin-top:8px;font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid rgb(0,128,128);background:#fff;color:rgb(0,128,128);font-weight:700;cursor:pointer;}
+  .vac-req-card .hours-approve-btn.on{background:rgb(0,128,128);color:#fff;}
+
+  .vac-summary-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;}
+  .vac-summary-row .vs-name{flex:2;font-weight:600;}
+  .vac-summary-row .vs-val{flex:1;text-align:right;font-family:var(--mono);}
+  .vac-summary-row .vs-val.remaining-neg{color:var(--deficit);font-weight:700;}
 
 
   /* ---- MODAL ---- */
@@ -268,20 +309,17 @@
     </div>
     <ul class="holiday-list" id="holidayList"></ul>
 
-    <h2 class="section-title">Vacances</h2>
-    <div class="field">
-      <label>Dies de vacances totals concedits per l'empresa</label>
-      <input type="number" id="cfgVacationTotal" min="0" step="0.5">
-    </div>
-    <div class="vacation-summary">
-      <div class="box"><div class="n" id="vacUsed">0</div><div class="l">Assignades</div></div>
-      <div class="box"><div class="n" id="vacRemaining">0</div><div class="l">Restants</div></div>
-    </div>
-    <p class="schedule-note">Les vacances assignades es calculen a partir dels festius personalitzats afegits a dalt.</p>
+    <h2 class="section-title">Vacances · Tipologies</h2>
+    <p class="schedule-note">Edita els noms, la unitat i el total concedit segons el que et doni la teva empresa. Els totals i sol·licituds es gestionen a la pestanya Vacances.</p>
+    <div id="vacTypesList"></div>
+    <button class="btn secondary block" id="addVacTypeBtn">+ Afegir tipologia</button>
 
     <h2 class="section-title">Còpia de seguretat</h2>
     <div class="backup-box">
-      <p>Totes les dades es guarden només en aquest dispositiu i navegador. Si esborres dades del navegador, es perdran. Fes una còpia periòdicament.</p>
+      <p><strong>On es guarden les dades en viu:</strong> tot (fitxatges, configuració, vacances) es guarda només dins d'aquest navegador/instal·lació, a l'origen de la pàgina que vas publicar a GitHub Pages. No hi ha cap servidor ni núvol: si esborres dades de navegació d'aquesta app o la desinstal·les, es perd tot. Cada divendres l'app et proposarà fer una còpia automàticament.</p>
+      <p><strong>On va la còpia (JSON) que descarregues:</strong> es desa a la carpeta de baixades habitual del teu mòbil, amb el nom <code>fitxatges_backup_AAAA-MM-DD.json</code>:</p>
+      <p>📱 <strong>Android:</strong> carpeta "Baixades" (normalment <code>Baixades/</code> o <code>/storage/emulated/0/Download/</code>), visible des del gestor de fitxers.</p>
+      <p>📱 <strong>iPhone:</strong> app Fitxers → "Baixades" (dins de "A l'iPhone" o "iCloud Drive", segons la configuració de Safari a Ajustos → Safari → Baixades).</p>
       <div class="row-btns">
         <button class="btn small secondary" id="backupBtn">Descarregar còpia (JSON)</button>
         <button class="btn small secondary" id="restoreBtn">Restaurar còpia</button>
@@ -294,12 +332,54 @@
     </div>
   </section>
 
+  <!-- VACANCES -->
+  <section class="view" id="view-vacances">
+    <h2 class="section-title">Resum</h2>
+    <div id="vacSummaryTypes"></div>
+    <div class="vacation-summary" style="margin-top:4px;">
+      <div class="box"><div class="n" id="vacTotalDaysUsed">0</div><div class="l">Dies usats</div></div>
+      <div class="box"><div class="n" id="vacTotalDaysRemaining">0</div><div class="l">Dies restants</div></div>
+    </div>
+    <div class="vacation-summary">
+      <div class="box"><div class="n" id="vacTotalHoursUsed">0</div><div class="l">Hores usades</div></div>
+      <div class="box"><div class="n" id="vacTotalHoursRemaining">0</div><div class="l">Hores restants</div></div>
+    </div>
+
+    <h2 class="section-title">Nova sol·licitud</h2>
+    <div class="field">
+      <label>Tipologia</label>
+      <select id="reqTypeSelect"></select>
+    </div>
+    <div id="reqDayFields">
+      <div class="timefields">
+        <div class="field"><label>Des de</label><input type="date" id="reqFrom"></div>
+        <div class="field"><label>Fins a</label><input type="date" id="reqTo"></div>
+      </div>
+      <p class="schedule-note" id="reqDayCountNote" style="margin:0 4px 10px;"></p>
+    </div>
+    <div id="reqHoursFields" style="display:none;">
+      <div class="timefields">
+        <div class="field"><label>Data</label><input type="date" id="reqHoursDate"></div>
+        <div class="field"><label>Hores</label><input type="number" id="reqHoursAmount" min="0" step="0.25"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Motiu (opcional)</label>
+      <input type="text" id="reqMotiu" placeholder="Ex: viatge familiar">
+    </div>
+    <button class="btn block" id="addRequestBtn">Crear sol·licitud</button>
+
+    <h2 class="section-title">Sol·licituds</h2>
+    <div id="vacRequestsList"></div>
+  </section>
+
   <div id="printArea"></div>
 </div>
 
 <nav class="tabbar">
   <button data-view="fitxar" class="active"><span class="ic">🕒</span>Fitxar</button>
   <button data-view="historial"><span class="ic">📋</span>Historial</button>
+  <button data-view="vacances"><span class="ic">🏖️</span>Vacances</button>
   <button data-view="config"><span class="ic">⚙️</span>Config</button>
 </nav>
 
@@ -341,6 +421,16 @@
   var DOW_LONG = ["diumenge","dilluns","dimarts","dimecres","dijous","divendres","dissabte"];
   var MONTHS = ["gener","febrer","març","abril","maig","juny","juliol","agost","setembre","octubre","novembre","desembre"];
 
+  function defaultVacTypes(){
+    return [
+      { id:"t1", name:"Dies de vacances de 8h", unit:"DIA", total:22 },
+      { id:"t2", name:"Dies de vacances de 6h", unit:"DIA", total:3 },
+      { id:"t3", name:"Dies de lliure elecció", unit:"DIA", total:2 },
+      { id:"t4", name:"Hores de lliure disposició", unit:"HORES", total:12 },
+      { id:"t5", name:"Hores de conveni", unit:"HORES", total:16 },
+      { id:"t6", name:"Dies de baixa", unit:"DIA", total:0 }
+    ];
+  }
   function defaultState(){
     return {
       config:{
@@ -351,6 +441,7 @@
         targetSchedule:[ { from:"1970-01-01", targets:{1:8,2:8,3:8,4:8,5:8,6:0,7:0} } ]
       },
       dayOverrides:{}, // objectiu personalitzat per a un dia concret: { 'YYYY-MM-DD': hores }
+      vacations:{ types: defaultVacTypes(), requests: [] },
       days:{}
     };
   }
@@ -364,6 +455,9 @@
       if(!parsed.config) parsed.config = defaultState().config;
       if(!parsed.days) parsed.days = {};
       if(!parsed.dayOverrides) parsed.dayOverrides = {};
+      if(!parsed.vacations) parsed.vacations = { types: defaultVacTypes(), requests: [] };
+      if(!parsed.vacations.types) parsed.vacations.types = defaultVacTypes();
+      if(!parsed.vacations.requests) parsed.vacations.requests = [];
       if(typeof parsed.config.vacationTotal !== "number") parsed.config.vacationTotal = 0;
       // migració del format antic (una sola hora objectiu per a tots els dies laborables)
       if(!parsed.config.targetSchedule){
@@ -386,6 +480,7 @@
   function pad(n){ return n<10 ? "0"+n : ""+n; }
   function dateKey(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
   function keyToDate(k){ var p=k.split("-").map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  function fmtDateEU(k){ if(!k) return ""; var p=k.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
   function todayKey(){ return dateKey(new Date()); }
   function isoDow(d){ var g=d.getDay(); return g===0?7:g; } // 1=Dl..7=Dg
   function addDays(d, n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
@@ -423,10 +518,26 @@
   }
   // Horari actualment actiu (el que s'edita a Configuració)
   function currentSchedule(){ return scheduleEntryFor(todayKey()); }
+  // Retorna info de vacances aprovades per a un dia concret (només tipologies de tipus DIA), o null
+  function getVacationDayInfo(key){
+    var found = null;
+    (state.vacations.requests || []).forEach(function(req){
+      if(req.unit === "DIA" && req.approvedDays && req.approvedDays[key]){
+        var t = getVacType(req.typeId);
+        found = { typeName: t ? t.name : "Vacances", request: req };
+      }
+    });
+    return found;
+  }
+  // Retorna cert si el dia és un festiu personalitzat (nacional/local) - no descompta vacances
+  function isCustomHoliday(key){
+    return state.config.holidays.indexOf(key) !== -1;
+  }
   function targetForDay(key){
     if(Object.prototype.hasOwnProperty.call(state.dayOverrides, key)){
       return state.dayOverrides[key]*60;
     }
+    if(getVacationDayInfo(key)) return 0;
     if(!isWorkday(key)) return 0;
     var d = keyToDate(key);
     var entry = scheduleEntryFor(key);
@@ -593,7 +704,7 @@
   document.getElementById("punchBtn").addEventListener("click", togglePunch);
 
   // ---------- Tabs ----------
-  var views = ["fitxar","historial","config"];
+  var views = ["fitxar","historial","vacances","config"];
   document.querySelectorAll("nav.tabbar button").forEach(function(btn){
     btn.addEventListener("click", function(){
       var v = btn.getAttribute("data-view");
@@ -603,6 +714,7 @@
       document.querySelectorAll("nav.tabbar button").forEach(function(b){ b.classList.toggle("active", b===btn); });
       if(v==="historial") renderHistorial();
       if(v==="config") renderConfig();
+      if(v==="vacances") renderVacances();
     });
   });
 
@@ -635,6 +747,18 @@
     if(histMode==="dia"){
       var key = dateKey(histRefDate);
       label.textContent = histRefDate.getDate()+" "+MONTHS[histRefDate.getMonth()]+" "+histRefDate.getFullYear();
+      var vacInfo = getVacationDayInfo(key);
+      if(vacInfo){
+        var banner = document.createElement("div");
+        banner.className = "vacation-banner";
+        banner.textContent = "🏖️ Dia de vacances — " + vacInfo.typeName;
+        content.appendChild(banner);
+      } else if(isCustomHoliday(key)){
+        var hBanner = document.createElement("div");
+        hBanner.className = "holiday-banner";
+        hBanner.textContent = "🔴 Festiu — no es treballa";
+        content.appendChild(hBanner);
+      }
       var pairs = getPairs(key);
       var wrap = document.createElement("div");
       wrap.className = "day-detail";
@@ -677,8 +801,11 @@
         var k = dateKey(d);
         var w = workedMinutesForDay(k), t = targetForDay(k);
         totalW+=w; totalT+=t;
-        var cls = (k===todayKey() ? "today " : "") + (t===0 ? "nonwork" : "");
-        rows += '<tr class="'+cls+'"><td>'+DOW[d.getDay()]+' '+d.getDate()+'</td><td>'+fmtHM(w)+'</td><td>'+fmtHM(t)+'</td><td class="'+(w-t>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w-t)+'</td></tr>';
+        var vac = getVacationDayInfo(k);
+        var hol = !vac && isCustomHoliday(k);
+        var cls = (k===todayKey() ? "today " : "") + (vac ? "vacation-row " : (hol ? "holiday-row " : (t===0 ? "nonwork" : "")));
+        var dayLabel = DOW[d.getDay()]+' '+d.getDate() + (vac ? '<span class="vac-tag">🏖️ '+vac.typeName+'</span>' : (hol ? '<span class="vac-tag">🔴 Festiu</span>' : ''));
+        rows += '<tr class="'+cls+'"><td>'+dayLabel+'</td><td>'+fmtHM(w)+'</td><td>'+fmtHM(t)+'</td><td class="'+(w-t>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w-t)+'</td></tr>';
       }
       table.innerHTML =
         '<thead><tr><th>Dia</th><th>Treb.</th><th>Obj.</th><th>Dif.</th></tr></thead>'+
@@ -698,8 +825,11 @@
         var k2 = dateKey(d2);
         var w2 = workedMinutesForDay(k2), t2 = targetForDay(k2);
         totalW2+=w2; totalT2+=t2;
-        var cls2 = (k2===todayKey() ? "today " : "") + (t2===0 ? "nonwork" : "");
-        rows2 += '<tr class="'+cls2+'"><td>'+dnum+' '+DOW[d2.getDay()]+'</td><td>'+fmtHM(w2)+'</td><td>'+fmtHM(t2)+'</td><td class="'+(w2-t2>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w2-t2)+'</td></tr>';
+        var vac2 = getVacationDayInfo(k2);
+        var hol2 = !vac2 && isCustomHoliday(k2);
+        var cls2 = (k2===todayKey() ? "today " : "") + (vac2 ? "vacation-row " : (hol2 ? "holiday-row " : (t2===0 ? "nonwork" : "")));
+        var dayLabel2 = dnum+' '+DOW[d2.getDay()] + (vac2 ? '<span class="vac-tag">🏖️ '+vac2.typeName+'</span>' : (hol2 ? '<span class="vac-tag">🔴 Festiu</span>' : ''));
+        rows2 += '<tr class="'+cls2+'"><td>'+dayLabel2+'</td><td>'+fmtHM(w2)+'</td><td>'+fmtHM(t2)+'</td><td class="'+(w2-t2>=0?"diff-pos":"diff-neg")+'">'+fmtHM(w2-t2)+'</td></tr>';
       }
       table2.innerHTML =
         '<thead><tr><th>Dia</th><th>Treb.</th><th>Obj.</th><th>Dif.</th></tr></thead>'+
@@ -749,7 +879,296 @@
     window.print();
   });
 
-  // ---------- Config ----------
+  // ---------- VACANCES ----------
+  function uid(){ return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function getVacType(id){
+    var found = null;
+    state.vacations.types.forEach(function(t){ if(t.id===id) found = t; });
+    return found;
+  }
+
+  function daysBetweenInclusive(fromKey, toKey){
+    var list = [];
+    var d = keyToDate(fromKey);
+    var end = keyToDate(toKey);
+    while(d <= end){
+      list.push(dateKey(d));
+      d = addDays(d,1);
+    }
+    return list;
+  }
+  // Igual que daysBetweenInclusive, però només retorna els dies que són laborables segons Configuració
+  // (no descompta caps de setmana ni festius que ja són festa per defecte)
+  function workingDaysBetweenInclusive(fromKey, toKey){
+    return daysBetweenInclusive(fromKey, toKey).filter(isWorkday);
+  }
+
+  function renderVacTypes(){
+    var wrap = document.getElementById("vacTypesList");
+    wrap.innerHTML = "";
+    state.vacations.types.forEach(function(t){
+      var row = document.createElement("div");
+      row.className = "vac-type-row";
+      row.innerHTML =
+        '<input type="text" value="'+t.name.replace(/"/g,"&quot;")+'">'+
+        '<select><option value="DIA">Dies</option><option value="HORES">Hores</option></select>'+
+        '<input type="number" min="0" step="0.5" value="'+t.total+'">'+
+        '<button class="del-type-btn" aria-label="Eliminar">✕</button>';
+      var nameInput = row.querySelector('input[type=text]');
+      var unitSelect = row.querySelector('select');
+      var totalInput = row.querySelector('input[type=number]');
+      unitSelect.value = t.unit;
+      nameInput.addEventListener("change", function(){ t.name = nameInput.value || t.name; save(); renderVacTypes(); renderVacances(); });
+      unitSelect.addEventListener("change", function(){ t.unit = unitSelect.value; save(); renderVacTypes(); renderVacances(); });
+      totalInput.addEventListener("change", function(){
+        var v = parseFloat(totalInput.value);
+        t.total = isNaN(v) ? 0 : v;
+        save(); renderVacTypes(); renderVacances();
+      });
+      row.querySelector(".del-type-btn").addEventListener("click", function(){
+        if(!confirm("Eliminar aquesta tipologia? Les sol·licituds que la facin servir es conservaran, però quedaran sense tipologia associada.")) return;
+        state.vacations.types = state.vacations.types.filter(function(x){ return x.id!==t.id; });
+        save(); renderVacTypes(); renderVacances();
+      });
+      wrap.appendChild(row);
+    });
+  }
+  document.getElementById("addVacTypeBtn").addEventListener("click", function(){
+    state.vacations.types.push({ id:uid(), name:"Nova tipologia", unit:"DIA", total:0 });
+    save(); renderVacTypes(); renderVacances();
+  });
+
+  function populateReqTypeSelect(){
+    var sel = document.getElementById("reqTypeSelect");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    state.vacations.types.forEach(function(t){
+      var opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.name + " (" + (t.unit==="DIA"?"dies":"hores") + ")";
+      sel.appendChild(opt);
+    });
+    if(prev && getVacType(prev)) sel.value = prev;
+    toggleReqFields();
+  }
+  function toggleReqFields(){
+    var sel = document.getElementById("reqTypeSelect");
+    var t = getVacType(sel.value);
+    var isHores = t && t.unit === "HORES";
+    document.getElementById("reqDayFields").style.display = isHores ? "none" : "block";
+    document.getElementById("reqHoursFields").style.display = isHores ? "block" : "none";
+    updateDayCountNote();
+  }
+  function updateDayCountNote(){
+    var from = document.getElementById("reqFrom").value;
+    var to = document.getElementById("reqTo").value;
+    var note = document.getElementById("reqDayCountNote");
+    if(from && to && to>=from){
+      note.textContent = workingDaysBetweenInclusive(from,to).length + " dia(es) laborables seleccionats (caps de setmana i festius no es descompten)";
+    } else {
+      note.textContent = "";
+    }
+  }
+  document.getElementById("reqTypeSelect").addEventListener("change", toggleReqFields);
+  document.getElementById("reqFrom").addEventListener("change", function(){
+    if(!document.getElementById("reqTo").value) document.getElementById("reqTo").value = this.value;
+    updateDayCountNote();
+  });
+  document.getElementById("reqTo").addEventListener("change", updateDayCountNote);
+
+  document.getElementById("addRequestBtn").addEventListener("click", function(){
+    var typeId = document.getElementById("reqTypeSelect").value;
+    var t = getVacType(typeId);
+    if(!t){ alert("Cal tenir almenys una tipologia creada."); return; }
+    var motiu = document.getElementById("reqMotiu").value.trim();
+    var req;
+    if(t.unit === "HORES"){
+      var d = document.getElementById("reqHoursDate").value;
+      var h = parseFloat(document.getElementById("reqHoursAmount").value);
+      if(!d){ alert("Selecciona una data."); return; }
+      if(isNaN(h) || h<=0){ alert("Introdueix un número d'hores vàlid."); return; }
+      req = { id:uid(), typeId:typeId, unit:"HORES", date:d, hours:h, motiu:motiu, status:"pendent" };
+    } else {
+      var from = document.getElementById("reqFrom").value;
+      var to = document.getElementById("reqTo").value || from;
+      if(!from){ alert("Selecciona almenys la data d'inici."); return; }
+      if(to < from){ alert("La data final no pot ser anterior a la d'inici."); return; }
+      req = { id:uid(), typeId:typeId, unit:"DIA", from:from, to:to, motiu:motiu, status:"pendent", approvedDays:{} };
+    }
+    state.vacations.requests.unshift(req);
+    save();
+    document.getElementById("reqMotiu").value = "";
+    document.getElementById("reqFrom").value = "";
+    document.getElementById("reqTo").value = "";
+    document.getElementById("reqHoursDate").value = "";
+    document.getElementById("reqHoursAmount").value = "";
+    renderVacances();
+  });
+
+  function computeVacUsage(){
+    var usage = {};
+    state.vacations.types.forEach(function(t){ usage[t.id] = 0; });
+    state.vacations.requests.forEach(function(req){
+      if(req.unit === "HORES"){
+        if(req.status === "aprovat") usage[req.typeId] = (usage[req.typeId]||0) + req.hours;
+      } else {
+        var approvedCount = 0;
+        Object.keys(req.approvedDays||{}).forEach(function(k){ if(req.approvedDays[k]) approvedCount++; });
+        usage[req.typeId] = (usage[req.typeId]||0) + approvedCount;
+      }
+    });
+    return usage;
+  }
+
+  function renderVacRequests(){
+    var wrap = document.getElementById("vacRequestsList");
+    wrap.innerHTML = "";
+    if(state.vacations.requests.length===0){
+      wrap.innerHTML = '<div class="empty-note">Encara no has creat cap sol·licitud</div>';
+      return;
+    }
+    state.vacations.requests.forEach(function(req){
+      var t = getVacType(req.typeId);
+      var card = document.createElement("div");
+      card.className = "vac-req-card";
+      var datesText, amountText, statusHtml;
+
+      if(req.unit === "HORES"){
+        datesText = fmtDateEU(req.date);
+        amountText = req.hours + " h";
+        var isApproved = req.status === "aprovat";
+        statusHtml = '<span class="vr-status '+(isApproved?"status-aprovat":"")+'">'+(isApproved?"Aprovat":"Pendent")+'</span>';
+      } else {
+        datesText = req.from === req.to ? fmtDateEU(req.from) : (fmtDateEU(req.from) + " → " + fmtDateEU(req.to));
+        var allDays = workingDaysBetweenInclusive(req.from, req.to);
+        var approvedCount = 0;
+        allDays.forEach(function(k){ if(req.approvedDays && req.approvedDays[k]) approvedCount++; });
+        amountText = allDays.length + " dies";
+        var statusCls = approvedCount===0 ? "" : (approvedCount===allDays.length ? "status-aprovat" : "status-parcial");
+        var statusTxt = approvedCount===0 ? "Pendent" : (approvedCount===allDays.length ? "Aprovat" : "Parcial ("+approvedCount+"/"+allDays.length+")");
+        statusHtml = '<span class="vr-status '+statusCls+'">'+statusTxt+'</span>';
+      }
+
+      card.innerHTML =
+        '<div class="vr-top">'+
+          '<div><div class="vr-type">'+(t ? t.name : "Tipologia eliminada")+'</div>'+
+          '<div class="vr-dates">'+datesText+' · '+amountText+'</div>'+
+          (req.motiu ? '<div class="vr-motiu">'+req.motiu+'</div>' : '')+
+          '</div>'+
+          statusHtml+
+        '</div>';
+
+      if(req.unit === "HORES"){
+        var approveBtn = document.createElement("button");
+        approveBtn.className = "hours-approve-btn" + (req.status==="aprovat" ? " on" : "");
+        approveBtn.textContent = req.status==="aprovat" ? "✓ Aprovat pel responsable" : "Marcar com a aprovat";
+        approveBtn.addEventListener("click", function(){
+          req.status = req.status==="aprovat" ? "pendent" : "aprovat";
+          save(); renderVacances();
+        });
+        card.appendChild(approveBtn);
+      } else {
+        var toggleBtn = document.createElement("button");
+        toggleBtn.className = "toggle-days-btn";
+        toggleBtn.textContent = "▾ Marcar dies aprovats pel responsable";
+        var checklist = document.createElement("div");
+        checklist.className = "days-checklist";
+        checklist.style.display = "none";
+        var note = document.createElement("p");
+        note.className = "schedule-note";
+        note.style.margin = "0 0 6px";
+        note.textContent = "Els caps de setmana i festius no compten com a dia de vacances, així que no apareixen aquí.";
+        checklist.appendChild(note);
+
+        var quickRow = document.createElement("div");
+        quickRow.className = "days-quick-actions";
+        var approveAllBtn = document.createElement("button");
+        approveAllBtn.textContent = "Aprovar tots";
+        var clearAllBtn = document.createElement("button");
+        clearAllBtn.textContent = "Treure aprovació";
+        approveAllBtn.addEventListener("click", function(){
+          if(!req.approvedDays) req.approvedDays = {};
+          workingDaysBetweenInclusive(req.from, req.to).forEach(function(k){ req.approvedDays[k] = true; });
+          save(); renderVacances();
+        });
+        clearAllBtn.addEventListener("click", function(){
+          req.approvedDays = {};
+          save(); renderVacances();
+        });
+        quickRow.appendChild(approveAllBtn);
+        quickRow.appendChild(clearAllBtn);
+        checklist.appendChild(quickRow);
+
+        workingDaysBetweenInclusive(req.from, req.to).forEach(function(k){
+          var d = keyToDate(k);
+          var row = document.createElement("div");
+          row.className = "day-check-row";
+          var checked = req.approvedDays && req.approvedDays[k];
+          row.innerHTML = '<input type="checkbox" '+(checked?"checked":"")+'><span>'+DOW[d.getDay()]+' '+fmtDateEU(k)+'</span>';
+          row.querySelector("input").addEventListener("change", function(e){
+            if(!req.approvedDays) req.approvedDays = {};
+            req.approvedDays[k] = e.target.checked;
+            save(); renderVacances();
+          });
+          checklist.appendChild(row);
+        });
+
+        toggleBtn.addEventListener("click", function(){
+          checklist.style.display = checklist.style.display==="none" ? "block" : "none";
+        });
+        card.appendChild(toggleBtn);
+        card.appendChild(checklist);
+      }
+
+      var footer = document.createElement("div");
+      footer.className = "vac-req-footer";
+      var delBtn = document.createElement("button");
+      delBtn.className = "del-req-btn";
+      delBtn.textContent = "🗑 Eliminar";
+      delBtn.addEventListener("click", function(){
+        if(!confirm("Eliminar aquesta sol·licitud?")) return;
+        state.vacations.requests = state.vacations.requests.filter(function(x){ return x.id!==req.id; });
+        save(); renderVacances();
+      });
+      footer.appendChild(delBtn);
+      card.appendChild(footer);
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderVacSummary(){
+    var usage = computeVacUsage();
+    var typesWrap = document.getElementById("vacSummaryTypes");
+    typesWrap.innerHTML = "";
+    var totalDaysUsed=0, totalDaysTotal=0, totalHoursUsed=0, totalHoursTotal=0;
+    state.vacations.types.forEach(function(t){
+      var used = usage[t.id] || 0;
+      var remaining = t.total - used;
+      if(t.unit === "HORES"){ totalHoursUsed += used; totalHoursTotal += t.total; }
+      else { totalDaysUsed += used; totalDaysTotal += t.total; }
+      var row = document.createElement("div");
+      row.className = "vac-summary-row";
+      row.innerHTML =
+        '<div class="vs-name">'+t.name+'</div>'+
+        '<div class="vs-val">'+t.total+' '+(t.unit==="HORES"?"h":"d")+'</div>'+
+        '<div class="vs-val">-'+used+'</div>'+
+        '<div class="vs-val '+(remaining<0?"remaining-neg":"")+'">'+remaining+' rest.</div>';
+      typesWrap.appendChild(row);
+    });
+    document.getElementById("vacTotalDaysUsed").textContent = totalDaysUsed;
+    document.getElementById("vacTotalDaysRemaining").textContent = (totalDaysTotal-totalDaysUsed);
+    document.getElementById("vacTotalHoursUsed").textContent = totalHoursUsed;
+    document.getElementById("vacTotalHoursRemaining").textContent = (totalHoursTotal-totalHoursUsed);
+  }
+
+  function renderVacances(){
+    populateReqTypeSelect();
+    renderVacRequests();
+    renderVacSummary();
+  }
+
+
   var WEEKDAY_LABELS = {1:"Dilluns",2:"Dimarts",3:"Dimecres",4:"Dijous",5:"Divendres",6:"Dissabte",7:"Diumenge"};
 
   function renderConfig(){
@@ -786,7 +1205,7 @@
     list.innerHTML = "";
     state.config.holidays.slice().sort().forEach(function(hk){
       var li = document.createElement("li");
-      li.innerHTML = "<span>"+hk+"</span><button aria-label='Eliminar'>✕</button>";
+      li.innerHTML = "<span>"+fmtDateEU(hk)+"</span><button aria-label='Eliminar'>✕</button>";
       li.querySelector("button").addEventListener("click", function(){
         state.config.holidays = state.config.holidays.filter(function(x){ return x!==hk; });
         save(); renderConfig(); renderAll();
@@ -794,21 +1213,13 @@
       list.appendChild(li);
     });
 
-    document.getElementById("cfgVacationTotal").value = state.config.vacationTotal;
-    var used = state.config.holidays.length;
-    document.getElementById("vacUsed").textContent = used;
-    document.getElementById("vacRemaining").textContent = (state.config.vacationTotal - used);
+    renderVacTypes();
   }
   document.getElementById("addHolidayBtn").addEventListener("click", function(){
     var v = document.getElementById("cfgHolidayInput").value;
     if(!v) return;
     if(state.config.holidays.indexOf(v)===-1) state.config.holidays.push(v);
     save(); document.getElementById("cfgHolidayInput").value=""; renderConfig(); renderAll();
-  });
-  document.getElementById("cfgVacationTotal").addEventListener("change", function(e){
-    var v = parseFloat(e.target.value);
-    if(isNaN(v) || v<0) v = 0;
-    state.config.vacationTotal = v; save(); renderConfig();
   });
 
   // ---------- Modal: objectiu d'un dia concret (des de l'Historial) ----------
@@ -838,13 +1249,31 @@
   });
 
   // ---------- Backup / restore ----------
-  document.getElementById("backupBtn").addEventListener("click", function(){
+  var LAST_PROMPT_KEY = "fitxatgesApp_lastBackupPrompt";
+  function downloadBackup(){
     var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "fitxatges_backup_"+todayKey()+".json";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  });
+  }
+  document.getElementById("backupBtn").addEventListener("click", downloadBackup);
+
+  // Cada divendres (només un cop al dia), pregunta si es vol fer còpia de seguretat.
+  function maybePromptFridayBackup(){
+    var today = new Date();
+    if(today.getDay() !== 5) return; // 5 = divendres
+    var todayK = todayKey();
+    var lastPrompt = null;
+    try{ lastPrompt = localStorage.getItem(LAST_PROMPT_KEY); }catch(e){}
+    if(lastPrompt === todayK) return; // ja preguntat avui
+    try{ localStorage.setItem(LAST_PROMPT_KEY, todayK); }catch(e){}
+    setTimeout(function(){
+      var vol = confirm("És divendres 🙂 Vols fer una còpia de seguretat de les dades d'aquesta setmana?");
+      if(vol) downloadBackup();
+    }, 700);
+  }
+
   document.getElementById("restoreBtn").addEventListener("click", function(){
     document.getElementById("restoreFile").click();
   });
@@ -896,6 +1325,8 @@
   tickClock();
   renderAll();
   renderConfig();
+  renderVacances();
+  maybePromptFridayBackup();
 })();
 </script>
 </body>
