@@ -135,6 +135,25 @@
   .vacation-banner{background:rgba(0,128,128,.12);border:1px solid rgb(0,128,128);border-left:4px solid rgb(0,128,128);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:rgb(0,128,128);font-weight:700;font-size:13.5px;}
   .holiday-banner{background:rgba(198,40,40,.10);border:1px solid rgb(198,40,40);border-left:4px solid rgb(198,40,40);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:rgb(198,40,40);font-weight:700;font-size:13.5px;}
 
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+  .cal-weekdays div{text-align:center;font-size:11px;color:var(--ink-soft);text-transform:uppercase;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:17px;font-family:var(--mono);border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--ink);cursor:pointer;}
+  .cal-cell .cal-day-num{line-height:1;font-size:17px;font-weight:600;}
+  .cal-cell .cal-worked{position:absolute;left:3px;bottom:2px;font-size:10.5px;font-weight:700;line-height:1;}
+  .cal-cell .cal-worked.hrs-eq{color:var(--ink);}
+  .cal-cell .cal-worked.hrs-over{color:var(--surplus);}
+  .cal-cell .cal-worked.hrs-under{color:var(--deficit);}
+  .cal-cell.vacation .cal-worked, .cal-cell.holiday .cal-worked{color:inherit !important;}
+  .cal-cell.weekend{background:var(--paper);color:var(--ink-soft);}
+  .cal-cell.vacation{background:rgba(0,128,128,.16);color:rgb(4,52,44);border-color:rgb(0,128,128);font-weight:700;}
+  .cal-cell.holiday{background:rgba(198,40,40,.14);color:rgb(80,19,19);border-color:rgb(198,40,40);font-weight:700;}
+  .cal-cell.today{border:2px solid var(--ink);font-weight:700;}
+  .cal-cell.blank{background:transparent;border:none;cursor:default;}
+  .cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:11px;color:var(--ink-soft);}
+  .cal-legend span{display:inline-flex;align-items:center;gap:4px;}
+  .cal-legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
   .day-detail{margin-top:6px;}
 
   /* ---- CONFIG ---- */
@@ -217,6 +236,11 @@
   #overlayTarget.show{display:flex;}
   #modalTarget{background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));animation:slideUp .18s ease;}
   #modalTarget h3{margin:0 0 14px;font-size:15px;text-transform:uppercase;letter-spacing:.05em;}
+  #overlayCalDay{position:fixed;inset:0;background:rgba(35,42,46,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  #overlayCalDay.show{display:flex;}
+  #modalCalDay{background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));animation:slideUp .18s ease;}
+  #modalCalDay h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.05em;}
+  #modalCalDay select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:var(--card);color:var(--ink);}
 
   /* ---- TABBAR ---- */
   nav.tabbar{
@@ -224,11 +248,11 @@
     display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;
   }
   nav.tabbar button{
-    flex:1;background:none;border:none;padding:11px 0 9px;font-family:var(--sans);font-size:11px;font-weight:600;
-    color:var(--ink-soft);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:.03em;
+    flex:1;background:none;border:none;padding:10px 0 8px;font-family:var(--sans);font-size:9.5px;font-weight:600;
+    color:var(--ink-soft);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;text-transform:uppercase;letter-spacing:.02em;
   }
   nav.tabbar button.active{color:var(--brass-dark);}
-  nav.tabbar button .ic{font-size:19px;}
+  nav.tabbar button .ic{font-size:17px;}
 
   .backup-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:8px;}
   .backup-box p{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.4;}
@@ -332,6 +356,26 @@
     </div>
   </section>
 
+  <!-- CALENDARI -->
+  <section class="view" id="view-calendari">
+    <div class="nav-row">
+      <button id="calPrev">‹</button>
+      <div class="period-label" id="calPeriodLabel"></div>
+      <button id="calNext">›</button>
+    </div>
+    <div class="cal-weekdays">
+      <div>Dl</div><div>Dt</div><div>Dc</div><div>Dj</div><div>Dv</div><div>Ds</div><div>Dg</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span><span class="sw" style="background:rgb(0,128,128);"></span>Vacances</span>
+      <span><span class="sw" style="background:rgb(198,40,40);"></span>Festiu</span>
+      <span><span class="sw" style="background:var(--paper);border:1px solid var(--line);"></span>Cap de setmana</span>
+      <span><span class="sw" style="border:2px solid var(--ink);"></span>Avui</span>
+    </div>
+    <p class="schedule-note" style="text-align:center;">Toca un dia per obrir-lo a l'Historial i editar-lo.</p>
+  </section>
+
   <!-- VACANCES -->
   <section class="view" id="view-vacances">
     <h2 class="section-title">Resum</h2>
@@ -378,6 +422,7 @@
 
 <nav class="tabbar">
   <button data-view="fitxar" class="active"><span class="ic">🕒</span>Fitxar</button>
+  <button data-view="calendari"><span class="ic">📅</span>Calendari</button>
   <button data-view="historial"><span class="ic">📋</span>Historial</button>
   <button data-view="vacances"><span class="ic">🏖️</span>Vacances</button>
   <button data-view="config"><span class="ic">⚙️</span>Config</button>
@@ -410,6 +455,31 @@
       <button class="btn" id="targetModalSave">Desar</button>
     </div>
     <button class="btn danger block" id="targetModalReset">Treure personalització (usar l'objectiu habitual)</button>
+  </div>
+</div>
+
+<div id="overlayCalDay">
+  <div id="modalCalDay">
+    <h3 id="calDayModalTitle">Dia</h3>
+    <div id="calDayVacInfo"></div>
+
+    <button class="btn block" id="calDayOpenHistBtn">Editar hores</button>
+
+    <h2 class="section-title" style="margin-top:18px;">Vacances</h2>
+    <div class="field" id="calDayTypeField">
+      <label>Tipologia de vacances</label>
+      <select id="calDayTypeSelect"></select>
+    </div>
+    <div class="row-btns">
+      <button class="btn secondary" id="calDayCancel">Cancel·lar</button>
+      <button class="btn" id="calDayMarkBtn">Marcar com a vacances</button>
+    </div>
+    <button class="btn danger block" id="calDayUnmarkBtn" style="display:none;">Treure vacances d'aquest dia</button>
+    <button class="btn secondary block" id="calDayEditTargetBtn">✎ Editar hores objectiu d'aquest dia</button>
+
+    <h2 class="section-title" style="margin-top:18px;">Fitxatges d'aquest dia</h2>
+    <div id="calDayFitxatgesList"></div>
+    <button class="btn secondary block" id="calDayAddFitxatgeBtn">+ Afegir fitxatge manual</button>
   </div>
 </div>
 
@@ -489,6 +559,13 @@
     mins = Math.abs(Math.round(mins));
     var h = Math.floor(mins/60), m = mins%60;
     return sign + h + "h " + pad(m) + "m";
+  }
+  // Format compacte per a espais petits (p.ex. caselles del calendari): "6h30" o "8h"
+  function fmtHMCompact(mins){
+    mins = Math.round(mins);
+    if(mins<=0) return "";
+    var h = Math.floor(mins/60), m = mins%60;
+    return h + (m>0 ? ":"+pad(m) : "") + "h";
   }
   function timeToMin(hm){ if(!hm) return null; var p=hm.split(":"); return (+p[0])*60+(+p[1]); }
   function nowHM(){ var d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); }
@@ -689,6 +766,7 @@
     setPairs(modalCtx.key, pairs);
     closeModal();
     renderAll();
+    renderHistorial();
   });
   document.getElementById("modalDelete").addEventListener("click", function(){
     if(!modalCtx || modalCtx.idx==null) return;
@@ -697,16 +775,32 @@
     setPairs(modalCtx.key, pairs);
     closeModal();
     renderAll();
+    renderHistorial();
   });
   document.getElementById("addManualTodayBtn").addEventListener("click", function(){ openModal(todayKey()); });
 
   // ---------- Punch button ----------
   document.getElementById("punchBtn").addEventListener("click", togglePunch);
 
+  // ---------- Detecció de canvis sense guardar ----------
+  var dirtyElements = new Set();
+  function markDirty(el){ dirtyElements.add(el); }
+  function clearDirty(el){ dirtyElements.delete(el); }
+  function isFormDirty(){ return dirtyElements.size > 0; }
+  function commitAllDirty(){
+    var els = Array.prototype.slice.call(dirtyElements);
+    dirtyElements.clear();
+    els.forEach(function(el){ el.dispatchEvent(new Event("change")); });
+  }
+
   // ---------- Tabs ----------
-  var views = ["fitxar","historial","vacances","config"];
+  var views = ["fitxar","calendari","historial","vacances","config"];
   document.querySelectorAll("nav.tabbar button").forEach(function(btn){
     btn.addEventListener("click", function(){
+      if(isFormDirty()){
+        var vol = confirm("Tens canvis sense guardar en aquesta pantalla.\n\nPrem \"Acceptar\" per guardar-los i continuar, o \"Cancel·lar\" per quedar-t'hi.");
+        if(vol){ commitAllDirty(); } else { return; }
+      }
       var v = btn.getAttribute("data-view");
       views.forEach(function(vv){
         document.getElementById("view-"+vv).classList.toggle("active", vv===v);
@@ -715,6 +809,7 @@
       if(v==="historial") renderHistorial();
       if(v==="config") renderConfig();
       if(v==="vacances") renderVacances();
+      if(v==="calendari") renderCalendari();
     });
   });
 
@@ -879,6 +974,194 @@
     window.print();
   });
 
+  // ---------- CALENDARI ----------
+  var calRefDate = new Date();
+  document.getElementById("calPrev").addEventListener("click", function(){
+    calRefDate = new Date(calRefDate.getFullYear(), calRefDate.getMonth()-1, 1);
+    renderCalendari();
+  });
+  document.getElementById("calNext").addEventListener("click", function(){
+    calRefDate = new Date(calRefDate.getFullYear(), calRefDate.getMonth()+1, 1);
+    renderCalendari();
+  });
+
+  function goToHistorialDay(key){
+    histMode = "dia";
+    histRefDate = keyToDate(key);
+    document.querySelectorAll(".subtabs button").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-mode")==="dia");
+    });
+    views.forEach(function(vv){
+      document.getElementById("view-"+vv).classList.toggle("active", vv==="historial");
+    });
+    document.querySelectorAll("nav.tabbar button").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-view")==="historial");
+    });
+    renderHistorial();
+  }
+
+  // ---------- Modal: marcar/treure vacances des del Calendari ----------
+  var calDayModalKey = null;
+  function populateCalDayTypeSelect(){
+    var sel = document.getElementById("calDayTypeSelect");
+    sel.innerHTML = "";
+    var dayTypes = state.vacations.types.filter(function(t){ return t.unit === "DIA"; });
+    dayTypes.forEach(function(t){
+      var opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.name;
+      sel.appendChild(opt);
+    });
+    return dayTypes.length > 0;
+  }
+  function openCalDayModal(key){
+    calDayModalKey = key;
+    document.getElementById("calDayModalTitle").textContent = fmtDateEU(key);
+    var infoDiv = document.getElementById("calDayVacInfo");
+    var typeField = document.getElementById("calDayTypeField");
+    var markBtn = document.getElementById("calDayMarkBtn");
+    var unmarkBtn = document.getElementById("calDayUnmarkBtn");
+    var vac = getVacationDayInfo(key);
+    var hasOverride = Object.prototype.hasOwnProperty.call(state.dayOverrides, key);
+    var targetLine = '<p class="schedule-note">Objectiu actual d\'aquest dia: <strong>'+fmtHM(targetForDay(key))+'</strong>'+(hasOverride?' <span class="override-tag">personalitzat</span>':'')+'</p>';
+    infoDiv.innerHTML = "";
+    if(vac){
+      infoDiv.innerHTML = targetLine + '<p class="schedule-note">🏖️ Actualment marcat com a vacances: <strong>'+vac.typeName+'</strong></p>';
+      typeField.style.display = "none";
+      markBtn.style.display = "none";
+      unmarkBtn.style.display = "block";
+    } else if(!isWorkday(key)){
+      infoDiv.innerHTML = targetLine + '<p class="schedule-note">Aquest dia no és laborable (cap de setmana o festiu), no cal marcar-hi vacances.</p>';
+      typeField.style.display = "none";
+      markBtn.style.display = "none";
+      unmarkBtn.style.display = "none";
+    } else {
+      var hasTypes = populateCalDayTypeSelect();
+      if(!hasTypes){
+        infoDiv.innerHTML = targetLine + '<p class="schedule-note">Cal crear una tipologia de vacances "en dies" a Configuració abans de poder-la assignar.</p>';
+        typeField.style.display = "none";
+        markBtn.style.display = "none";
+      } else {
+        infoDiv.innerHTML = targetLine;
+        typeField.style.display = "block";
+        markBtn.style.display = "inline-block";
+      }
+      unmarkBtn.style.display = "none";
+    }
+    // llista de fitxatges d'aquest dia, amb opció d'editar-los o afegir-ne un de nou
+    var fitxList = document.getElementById("calDayFitxatgesList");
+    fitxList.innerHTML = "";
+    var pairs = getPairs(key);
+    if(pairs.length === 0){
+      fitxList.innerHTML = '<div class="empty-note">Sense fitxatges aquest dia</div>';
+    } else {
+      pairs.forEach(function(p, idx){
+        var stub = buildStub(key, p, idx);
+        var editBtn = stub.querySelector(".edit-btn");
+        // substituïm el comportament per defecte: tanquem aquest modal abans d'obrir l'editor d'hores
+        var newEditBtn = editBtn.cloneNode(true);
+        editBtn.parentNode.replaceChild(newEditBtn, editBtn);
+        newEditBtn.addEventListener("click", function(){
+          closeCalDayModal();
+          openModal(key, idx);
+        });
+        fitxList.appendChild(stub);
+      });
+    }
+    document.getElementById("overlayCalDay").classList.add("show");
+  }
+  function closeCalDayModal(){ document.getElementById("overlayCalDay").classList.remove("show"); calDayModalKey = null; }
+  document.getElementById("calDayAddFitxatgeBtn").addEventListener("click", function(){
+    if(!calDayModalKey) return;
+    var key = calDayModalKey;
+    closeCalDayModal();
+    openModal(key);
+  });
+
+  document.getElementById("calDayCancel").addEventListener("click", closeCalDayModal);
+  document.getElementById("overlayCalDay").addEventListener("click", function(e){ if(e.target.id==="overlayCalDay") closeCalDayModal(); });
+  document.getElementById("calDayMarkBtn").addEventListener("click", function(){
+    if(!calDayModalKey) return;
+    var typeId = document.getElementById("calDayTypeSelect").value;
+    if(!typeId) return;
+    var req = { id:uid(), typeId:typeId, unit:"DIA", from:calDayModalKey, to:calDayModalKey, motiu:"Afegit des del calendari", status:"aprovat", approvedDays:{} };
+    req.approvedDays[calDayModalKey] = true;
+    state.vacations.requests.unshift(req);
+    save();
+    closeCalDayModal();
+    renderCalendari();
+    renderVacances();
+  });
+  document.getElementById("calDayUnmarkBtn").addEventListener("click", function(){
+    if(!calDayModalKey) return;
+    var vac = getVacationDayInfo(calDayModalKey);
+    if(vac && vac.request.approvedDays){ delete vac.request.approvedDays[calDayModalKey]; }
+    save();
+    closeCalDayModal();
+    renderCalendari();
+    renderVacances();
+  });
+  document.getElementById("calDayEditTargetBtn").addEventListener("click", function(){
+    if(!calDayModalKey) return;
+    var key = calDayModalKey;
+    closeCalDayModal();
+    openTargetModal(key);
+  });
+  document.getElementById("calDayOpenHistBtn").addEventListener("click", function(){
+    if(!calDayModalKey) return;
+    var key = calDayModalKey;
+    closeCalDayModal();
+    goToHistorialDay(key);
+  });
+
+  function renderCalendari(){
+    var y = calRefDate.getFullYear(), m = calRefDate.getMonth();
+    document.getElementById("calPeriodLabel").textContent = MONTHS[m] + " " + y;
+    var grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+    var first = new Date(y,m,1);
+    var firstIdx = isoDow(first) - 1; // 0 = dilluns
+    var daysInMonth = new Date(y,m+1,0).getDate();
+    var totalCells = firstIdx + daysInMonth;
+    var trailing = (7 - (totalCells % 7)) % 7;
+
+    for(var i=0;i<firstIdx;i++){
+      var b1 = document.createElement("div");
+      b1.className = "cal-cell blank";
+      grid.appendChild(b1);
+    }
+    for(var d=1; d<=daysInMonth; d++){
+      var dateObj = new Date(y,m,d);
+      var k = dateKey(dateObj);
+      var cell = document.createElement("div");
+      var cls = "cal-cell";
+      var vac = getVacationDayInfo(k);
+      var hol = !vac && isCustomHoliday(k);
+      var weekend = (dateObj.getDay()===0 || dateObj.getDay()===6);
+      if(vac) cls += " vacation";
+      else if(hol) cls += " holiday";
+      else if(weekend) cls += " weekend";
+      if(k === todayKey()) cls += " today";
+      cell.className = cls;
+      var worked = workedMinutesForDay(k);
+      var workedTxt = fmtHMCompact(worked);
+      var workedHtml = "";
+      if(workedTxt){
+        var dayTarget = targetForDay(k);
+        var diffCls = worked === dayTarget ? "hrs-eq" : (worked > dayTarget ? "hrs-over" : "hrs-under");
+        workedHtml = '<span class="cal-worked '+diffCls+'">'+workedTxt+'</span>';
+      }
+      cell.innerHTML = '<span class="cal-day-num">'+d+'</span>' + workedHtml;
+      cell.addEventListener("click", function(kk){ return function(){ openCalDayModal(kk); }; }(k));
+      grid.appendChild(cell);
+    }
+    for(var j=0;j<trailing;j++){
+      var b2 = document.createElement("div");
+      b2.className = "cal-cell blank";
+      grid.appendChild(b2);
+    }
+  }
+
   // ---------- VACANCES ----------
   function uid(){ return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -919,12 +1202,14 @@
       var unitSelect = row.querySelector('select');
       var totalInput = row.querySelector('input[type=number]');
       unitSelect.value = t.unit;
-      nameInput.addEventListener("change", function(){ t.name = nameInput.value || t.name; save(); renderVacTypes(); renderVacances(); });
+      nameInput.addEventListener("input", function(){ markDirty(nameInput); });
+      nameInput.addEventListener("change", function(){ t.name = nameInput.value || t.name; save(); clearDirty(nameInput); renderVacTypes(); renderVacances(); });
       unitSelect.addEventListener("change", function(){ t.unit = unitSelect.value; save(); renderVacTypes(); renderVacances(); });
+      totalInput.addEventListener("input", function(){ markDirty(totalInput); });
       totalInput.addEventListener("change", function(){
         var v = parseFloat(totalInput.value);
         t.total = isNaN(v) ? 0 : v;
-        save(); renderVacTypes(); renderVacances();
+        save(); clearDirty(totalInput); renderVacTypes(); renderVacances();
       });
       row.querySelector(".del-type-btn").addEventListener("click", function(){
         if(!confirm("Eliminar aquesta tipologia? Les sol·licituds que la facin servir es conservaran, però quedaran sense tipologia associada.")) return;
@@ -1192,10 +1477,12 @@
         state.config.workDays = vals;
         save(); renderConfig(); renderAll();
       });
+      num.addEventListener("input", function(){ markDirty(num); });
       num.addEventListener("change", function(){
         var v = parseFloat(num.value);
         if(isNaN(v) || v<0){ v = 0; }
         setWeekdayTargetFromToday(dow, v);
+        clearDirty(num);
         renderAll();
       });
       grid.appendChild(row);
@@ -1326,6 +1613,7 @@
   renderAll();
   renderConfig();
   renderVacances();
+  renderCalendari();
   maybePromptFridayBackup();
 })();
 </script>

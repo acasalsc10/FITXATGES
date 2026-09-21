@@ -1,5 +1,5 @@
 // Service worker: desa l'app en caché perquè funcioni sense connexió un cop instal·lada.
-var CACHE_NAME = "fitxatges-cache-v8";
+var CACHE_NAME = "fitxatges-cache-v17";
 var FILES = [
   "./",
   "./index.html",
